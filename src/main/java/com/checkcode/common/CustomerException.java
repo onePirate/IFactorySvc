@@ -12,6 +12,12 @@ public class CustomerException extends RuntimeException{
 
     private Integer code;
 
+    public CustomerException(String message)
+    {
+        super(message);
+        this.setCode(500);
+    }
+
     public CustomerException(Integer errorCode, String message)
     {
         super(message);

@@ -47,3 +47,7 @@ log4j:
 token:
   switch: false
   timeout: 86400000
+
+file:
+  savePath: D:/Program Files/checkcode/file
+  bakPath: D:/.checkcode
