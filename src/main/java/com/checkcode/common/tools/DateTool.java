@@ -34,6 +34,12 @@ public class DateTool {
         return dateString;
     }
 
+    /**
+     * 解析时间
+     * @param date
+     * @return
+     * @throws ParseException
+     */
     public static Date parseDate(String date) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return formatter.parse(date);

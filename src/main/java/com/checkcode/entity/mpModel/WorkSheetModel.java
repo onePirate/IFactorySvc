@@ -5,8 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
 @TableName("tb_worksheet")
 public class WorkSheetModel{
@@ -14,9 +12,9 @@ public class WorkSheetModel{
     @TableId(type = IdType.INPUT)
     private String code;
     private String name;
-    private Date createTime;
-    private Date startTime;
-    private Date deadline;
+    private String createTime;
+    private String startTime;
+    private String deadline;
     private Integer status;
     private String customerNo;
     private String platform;

@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.checkcode.common.CustomerException;
 import com.checkcode.common.StateEnum;
 import com.checkcode.common.entity.Result;
-import com.checkcode.common.tools.DateTool;
 import com.checkcode.common.tools.IdWorker;
 import com.checkcode.common.tools.ResultTool;
 import com.checkcode.dao.IWorkSheetDao;
@@ -95,7 +94,7 @@ public class WorkSheetController {
             workSheetModel.setCode(code);
             workSheetModel.setStatus(0);
             //todo 日期不对
-            workSheetModel.setDeadline(DateTool.parseDate(workSheetParam.getDeadline()));
+            workSheetModel.setDeadline(workSheetParam.getDeadline());
             workSheetDao.insert(workSheetModel);
         } catch (Exception ex) {
             log.error("create worksheet has error", ex);
