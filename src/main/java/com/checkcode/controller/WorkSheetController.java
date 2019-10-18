@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -73,45 +72,13 @@ public class WorkSheetController {
         //如果解析都正确，则插入数据到tb_device_individual中
         //如果插入报错，直接返回创建工单失败
         try {
-            createWorkSheet(deviceIndividualList, code, workSheetCreateParam);
+            workSheetService.createWorkSheet(deviceIndividualList, code, workSheetCreateParam);
         } catch (Exception ex) {
             log.error("create worksheet has error", ex);
             throw new CustomerException("创建工单失败");
         }
         return ResultTool.successWithMap(WorkSheetSimpleVo.builder().worksheetCode(code).build());
     }
-
-    /**
-     * todo 创建工单放在一个事物当中
-     *
-     * @param deviceIndividualList
-     * @param code
-     * @param workSheetCreateParam
-     * @throws ParseException
-     */
-    private void createWorkSheet(List<DeviceIndividualModel> deviceIndividualList, String code, WorkSheetCreateParam workSheetCreateParam) throws ParseException {
-        deviceIndividualService.saveBatch(deviceIndividualList);
-        try {
-            WorkSheetModel workSheetModel = new WorkSheetModel();
-            BeanUtils.copyProperties(workSheetCreateParam, workSheetModel);
-            workSheetModel.setCode(code);
-            workSheetModel.setStatus(0);
-            //todo 日期不对
-            workSheetModel.setDeadline(workSheetCreateParam.getDeadline());
-            workSheetService.save(workSheetModel);
-        } catch (Exception ex) {
-            log.error("create worksheet has error", ex);
-            try {
-                QueryWrapper<DeviceIndividualModel> removeWrapper = new QueryWrapper<>();
-                removeWrapper.eq("worksheet_code", code);
-                deviceIndividualService.remove(removeWrapper);
-            } catch (Exception subEx) {
-                log.error("remove individual device has error," + code + " worksheet data is invalid.", ex);
-            }
-            throw new CustomerException("创建工单失败");
-        }
-    }
-
 
     /**
      * 简单读取 (同步读取)
@@ -148,10 +115,7 @@ public class WorkSheetController {
         if (workSheetParam != null) {
             //如果两个参数为null，则返回所有可运行的数据
             if (StringUtils.isEmpty(workSheetParam.getCode()) && workSheetParam.getStatus() == null) {
-                //运行中的在前面（默认应该只有一条可运行）
-                QueryWrapper<WorkSheetModel> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq(WorkSheetModel.STATUS, 1);
-                List<WorkSheetModel> runningWsList = workSheetService.list(queryWrapper);
+                List<WorkSheetModel> runningWsList = workSheetService.getRunningWs();
 
                 QueryWrapper<WorkSheetModel> queryReadyWrapper = new QueryWrapper<>();
                 queryReadyWrapper.in(WorkSheetModel.STATUS, 0, 2);

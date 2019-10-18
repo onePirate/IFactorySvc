@@ -59,6 +59,26 @@ public class DeviceIndividualModel {
     @TableField("box_code")
     private String boxCode;
 
+    @TableField("status")
+    private Integer status;
 
+    public static final String PROPERTIES_SN1 = "SN1";
+    public static final String PROPERTIES_SN2 = "SN2";
+    public static final String PROPERTIES_IMEI1 = "IMEI1";
+    public static final String PROPERTIES_IMEI2 = "IMEI2";
+    public static final String PROPERTIES_IMEI3 = "IMEI3";
+    public static final String PROPERTIES_IMEI4 = "IMEI4";
+    public static final String PROPERTIES_BTADDRESS = "BTADDRESS";
+    public static final String PROPERTIES_WIFIADDRESS = "WIFIADDRESS";
+    public static final String PROPERTIES_ETHERNNETMACADDRESS = "ETHERNNETMACADDRESS";
+    public static final String PROPERTIES_MEID = "MEID";
+    public static final String PROPERTIES_ESN = "ESN";
+    public static final String PROPERTIES_EXTRA1 = "EXTRA1";
+    public static final String PROPERTIES_EXTRA2 = "EXTRA2";
+    public static final String PROPERTIES_EXTRA3 = "EXTRA3";
+    public static final String PROPERTIES_WEIGHT = "weight";
+    public static final String PROPERTIES_WORKSHEET_CODE = "worksheet_code";
+    public static final String PROPERTIES_BOX_CODE = "box_code";
+    public static final String PROPERTIES_STATUS = "status";
 
 }

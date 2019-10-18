@@ -31,10 +31,6 @@ public enum StateEnum {
      */
     private String msg;
 
-    /**
-     * English Desc
-     */
-    private String enDesc;
 
     public Integer getCode() {
         return code;

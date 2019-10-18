@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.checkcode.dao.IIndividualFlowDao">
+
+    <select id="getAnyOperFinishedData" resultType="com.checkcode.entity.mpModel.IndividualFlowModel">
+        SELECT
+            d.*
+        FROM
+            (
+                SELECT
+                    individual_sn,
+                    MAX(reset_times) AS max_times
+                FROM
+                    tb_individual_flow
+                GROUP BY
+                    individual_sn
+            ) t
+        INNER JOIN tb_individual_flow d ON d.reset_times = t.max_times
+        AND d.individual_sn = t.individual_sn
+        AND d.individual_sn IN
+        <foreach collection="snList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND d.oper = #{oper}
+        AND d. STATUS = '1'
+    </select>
+
+</mapper>
