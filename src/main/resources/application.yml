@@ -6,7 +6,7 @@ logging:
 
 spring:
   profiles:
-    active: prod
+    active: dev
 
 mybatis:
   type-aliases-package: com.checkcode.entity.mpModel

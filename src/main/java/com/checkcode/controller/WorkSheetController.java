@@ -61,7 +61,7 @@ public class WorkSheetController {
      * @return
      */
     @PostMapping("/create")
-    public Result create(@Valid @RequestBody WorkSheetCreateParam workSheetCreateParam, BindingResult bindingResult) {
+    public Result createWorkSheet(@Valid @RequestBody WorkSheetCreateParam workSheetCreateParam, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             for (ObjectError error : bindingResult.getAllErrors()) {
                 return ResultTool.failedOnly(error.getDefaultMessage());
@@ -97,7 +97,22 @@ public class WorkSheetController {
             List<Object> readList = EasyExcelFactory.read(new FileInputStream(filePath), sheet);
             for (Object obj : readList) {
                 DeviceIndividualPojo deviceIndividualPojo = (DeviceIndividualPojo) obj;
-                if (StringUtils.isEmpty(deviceIndividualPojo.getSN1()) && StringUtils.isEmpty(deviceIndividualPojo.getSN2())) {
+                if (StringUtils.isEmpty(deviceIndividualPojo.getSN1())
+                    && StringUtils.isEmpty(deviceIndividualPojo.getSN2())
+                    && StringUtils.isEmpty(deviceIndividualPojo.getIMEI1())
+                    && StringUtils.isEmpty(deviceIndividualPojo.getIMEI2())
+                    && StringUtils.isEmpty(deviceIndividualPojo.getIMEI3())
+                    && StringUtils.isEmpty(deviceIndividualPojo.getIMEI4())
+                    && StringUtils.isEmpty(deviceIndividualPojo.getBTADDRESS())
+                    && StringUtils.isEmpty(deviceIndividualPojo.getETHERNNETMACADDRESS())
+                    && StringUtils.isEmpty(deviceIndividualPojo.getMEID())
+                    && StringUtils.isEmpty(deviceIndividualPojo.getESN())
+                    && StringUtils.isEmpty(deviceIndividualPojo.getEXTRA1())
+                    && StringUtils.isEmpty(deviceIndividualPojo.getEXTRA2())
+                    && StringUtils.isEmpty(deviceIndividualPojo.getEXTRA3())) {
+                    continue;
+                }
+                if (StringUtils.isEmpty(deviceIndividualPojo.getSN1()) && StringUtils.isEmpty(deviceIndividualPojo.getSN2())){
                     throw new CustomerException(StateEnum.FAIL_EXCEL_DATA_EX);
                 }
                 deviceIndividualPojo.setWorksheetCode(code);

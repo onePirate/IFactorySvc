@@ -63,16 +63,12 @@ public class CustomerController {
 
 
     @PostMapping("/queryByAttr")
-    public Result create(@Valid @RequestBody SearchPojo searchPojo, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            for (ObjectError error : bindingResult.getAllErrors()) {
-                return ResultTool.failedOnly(error.getDefaultMessage());
-            }
-        }
+    public Result create(@RequestBody SearchPojo searchPojo) {
         QueryWrapper<CustomerModel> queryWrapper = new QueryWrapper<>();
-        queryWrapper.like("company", searchPojo.getSearchVal());
-        queryWrapper.or().like("name", searchPojo.getSearchVal());
-        queryWrapper.or().like("phone", searchPojo.getSearchVal());
+        String searchVal = searchPojo.getSearchVal() == null ? "" : searchPojo.getSearchVal();
+        queryWrapper.like("company", searchVal);
+        queryWrapper.or().like("name", searchVal);
+        queryWrapper.or().like("phone", searchVal);
         List<CustomerModel> customerModels = customerService.list(queryWrapper);
         return ResultTool.successWithMap(customerModels);
     }

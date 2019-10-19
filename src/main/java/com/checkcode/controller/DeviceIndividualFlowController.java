@@ -5,6 +5,7 @@ import com.checkcode.common.FlowOrderEnum;
 import com.checkcode.common.entity.Result;
 import com.checkcode.common.tools.ResultTool;
 import com.checkcode.entity.mpModel.IndividualFlowModel;
+import com.checkcode.entity.param.FlowBoxUpRecordParam;
 import com.checkcode.entity.param.FlowRecordParam;
 import com.checkcode.service.IIndividualFlowService;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +48,7 @@ public class DeviceIndividualFlowController {
                 return ResultTool.failedOnly(errMsg);
             }
             return ResultTool.successWithMap(individualFlowService.recordFlowAndGetProcess(flowRecordParam));
-        }else if (BOX_UP.equals(FlowOrderConstant.flowMap.get(flowRecordParam.getOper()))){
+        } else if (BOX_UP.equals(FlowOrderConstant.flowMap.get(flowRecordParam.getOper()))) {
             //如果当前流程是最后一个流程，返回错误提示，装箱流程不在这个接口中操作
             String errMsg = "装箱不在这里操作";
             log.warn(flowRecordParam.getIndividualSn() + "->" + errMsg);
@@ -62,13 +63,25 @@ public class DeviceIndividualFlowController {
             return ResultTool.failedOnly(errMsg);
         }
         FlowOrderEnum flowOrderEnum = FlowOrderEnum.valueOf(FlowOrderConstant.flowMap.get(individualFlowModel.getOper()));
-        if (flowOrderEnum.getNextFlow().equals(flowRecordParam.getOper())){
+        if (flowOrderEnum.getNextFlow().equals(flowRecordParam.getOper())) {
             return ResultTool.successWithMap(individualFlowService.recordFlowAndGetProcess(flowRecordParam));
         }
         String errMsg = "流程有误，请确保操作流程正确";
         log.warn(flowRecordParam.getIndividualSn() + "->" + errMsg);
         return ResultTool.failedOnly(errMsg);
 
+    }
+
+
+    @PostMapping("/boxUp")
+    public Result recordDeviceBoxUpFlow(@Valid @RequestBody FlowBoxUpRecordParam flowBoxUpRecordParam, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                return ResultTool.failedOnly(error.getDefaultMessage());
+            }
+        }
+
+        return ResultTool.successWithMap(individualFlowService.boxUp(flowBoxUpRecordParam));
     }
 
 
