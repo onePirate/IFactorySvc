@@ -1,9 +1,12 @@
 package com.checkcode.common.tools;
 
 
+import com.checkcode.common.CustomerException;
+import com.checkcode.common.StateEnum;
 import com.checkcode.common.entity.ListResult;
 import com.checkcode.common.entity.Result;
-import com.checkcode.common.StateEnum;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +85,19 @@ public class ResultTool {
         result.setCode(500);
         result.setMsg(errMsg);
         return result;
+    }
+
+    /**
+     * 参数校验统一处理
+     *
+     * @param bindingResult
+     */
+    public static void valid(BindingResult bindingResult){
+        if (bindingResult.hasErrors()) {
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                throw new CustomerException(error.getDefaultMessage());
+            }
+        }
     }
 
 }

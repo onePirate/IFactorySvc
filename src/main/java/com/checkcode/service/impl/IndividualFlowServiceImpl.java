@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.checkcode.common.CustomerException;
 import com.checkcode.common.FlowOrderConstant;
-import com.checkcode.common.FlowOrderEnum;
 import com.checkcode.common.tools.IdWorker;
 import com.checkcode.dao.IBoxDao;
 import com.checkcode.dao.IIndividualFlowDao;
@@ -55,14 +54,16 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
      * @param flowRecordParam
      */
     @Override
-    public void recordFlow(FlowRecordParam flowRecordParam) {
+    public void recordFlow(FlowRecordParam flowRecordParam, boolean isReset) {
         IndividualFlowModel individualFlowModel = new IndividualFlowModel();
         BeanUtils.copyProperties(flowRecordParam, individualFlowModel);
-        List<String> snList = new ArrayList<>();
-        snList.add(individualFlowModel.getIndividualSn());
-        List<IndividualFlowModel> flowModelList = baseMapper.getAnyOperFinishedData(snList, FlowOrderEnum.valueOf(FlowOrderConstant.flowMap.get(flowRecordParam.getOper())).getLastFlow(), "1");
-
-        individualFlowModel.setResetTimes(flowModelList.get(0).getResetTimes());
+        IndividualFlowModel flowModel = getDeviceLastRecord(individualFlowModel.getIndividualSn());
+        if (isReset) {
+            individualFlowModel.setResetTimes(flowModel.getResetTimes() + 1);
+            individualFlowModel.setStatus("1");
+        } else {
+            individualFlowModel.setResetTimes(flowModel.getResetTimes());
+        }
         save(individualFlowModel);
     }
 
@@ -74,7 +75,7 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
      */
     @Override
     @Transactional
-    public FlowProgressVo recordFlowAndGetProcess(FlowRecordParam flowRecordParam) {
+    public FlowProgressVo recordFlowAndGetProcess(FlowRecordParam flowRecordParam, boolean isReset) {
         List<WorkSheetModel> runningWsList = workSheetService.getRunningWs();
         if (runningWsList == null || runningWsList.size() == 0) {
             throw new CustomerException("没有正在生产中的工单");
@@ -83,7 +84,7 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
 
 
         //去记录生产流程
-        recordFlow(flowRecordParam);
+        recordFlow(flowRecordParam, isReset);
 
         return getFlowProgressVo(wsCode, flowRecordParam.getOper());
     }
@@ -117,7 +118,7 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
         for (int i = 0; i < flowListSize; i++) {
             IndividualFlowModel individualFlowModel = individualFlowModelList.get(i);
             //需要校验设备的上个流程是否正确为（称重）
-            if (!individualFlowModel.getOper().equals(FlowOrderConstant.FIFTH)){
+            if (!individualFlowModel.getOper().equals(FlowOrderConstant.FIFTH)) {
                 throw new CustomerException("正在装箱的部分设备流程有误");
             }
             resetTimesMap.put(individualFlowModel.getIndividualSn(), individualFlowModel.getResetTimes());
@@ -157,13 +158,13 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
     private FlowProgressVo getFlowProgressVo(String wsCode, String oper) {
         QueryWrapper<DeviceIndividualModel> queryCusWsDeviceWrapper = new QueryWrapper<>();
         queryCusWsDeviceWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, wsCode);
-        List<DeviceIndividualModel> cusDwDeviceList = deviceIndividualService.list(queryCusWsDeviceWrapper);
+        List<DeviceIndividualModel> cusWsDeviceList = deviceIndividualService.list(queryCusWsDeviceWrapper);
 
-        int total = cusDwDeviceList.size();
-        if (cusDwDeviceList == null || total == 0) {
+        int total = cusWsDeviceList.size();
+        if (cusWsDeviceList == null || total == 0) {
             throw new CustomerException("生产中的工单没有设备信息");
         }
-        List<String> allSnList = cusDwDeviceList.stream().map(o -> {
+        List<String> allSnList = cusWsDeviceList.stream().map(o -> {
             if (o.getSN1() != null) {
                 return o.getSN1();
             }

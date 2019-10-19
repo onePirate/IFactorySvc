@@ -17,8 +17,8 @@ public class FlowRecordParam {
     @NotEmpty(message = "操作类型不能为空")
     private String oper;
 
-    @NotEmpty(message = "操作状态不能为空")
-    private String status;
+    @NotEmpty(message = "操作状态不能为空", groups = {FlowRecordVaildGroup.NormalGroup.class})
+    private String status = "1";
 
     private String weight;
 

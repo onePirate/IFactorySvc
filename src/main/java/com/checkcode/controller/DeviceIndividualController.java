@@ -17,7 +17,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -109,11 +108,7 @@ public class DeviceIndividualController {
      */
     @PostMapping("/query")
     public Result getDeviceIndividualInfoBySnOrImei(@Valid @RequestBody SearchPojo searchPojo, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            for (ObjectError error : bindingResult.getAllErrors()) {
-                return ResultTool.failedOnly(error.getDefaultMessage());
-            }
-        }
+        ResultTool.valid(bindingResult);
 
         List<DeviceIndividualModel> deviceIndividualModelList = deviceIndividualService.getIndividualListByCondition(searchPojo.getSearchVal());
 

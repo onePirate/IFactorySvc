@@ -24,14 +24,13 @@ public interface IIndividualFlowService extends IService<IndividualFlowModel> {
      * @param flowRecordParam
      * @return
      */
-    void recordFlow(FlowRecordParam flowRecordParam);
+    void recordFlow(FlowRecordParam flowRecordParam, boolean isReset);
 
     /**
-     *
      * @param flowRecordParam
      * @return
      */
-    FlowProgressVo recordFlowAndGetProcess(FlowRecordParam flowRecordParam);
+    FlowProgressVo recordFlowAndGetProcess(FlowRecordParam flowRecordParam, boolean isReset);
 
     /**
      * 通过sn获取每一个最新操作流程状态

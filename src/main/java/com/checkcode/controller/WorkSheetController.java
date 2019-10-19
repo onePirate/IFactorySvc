@@ -25,7 +25,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,11 +61,7 @@ public class WorkSheetController {
      */
     @PostMapping("/create")
     public Result createWorkSheet(@Valid @RequestBody WorkSheetCreateParam workSheetCreateParam, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            for (ObjectError error : bindingResult.getAllErrors()) {
-                return ResultTool.failedOnly(error.getDefaultMessage());
-            }
-        }
+        ResultTool.valid(bindingResult);
         String code = "ws" + IdWorker.getCodeByUUId();
         //首先解析Excel数据是否正确
         //如果解析数据有错，则提示Excel数据有错
@@ -203,11 +198,7 @@ public class WorkSheetController {
 
     @PostMapping("/oper")
     public Result operWorkSheet(@Validated(WorkSheetGroup.LoginGroup.class) @RequestBody WorkSheetParam workSheetParam, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            for (ObjectError error : bindingResult.getAllErrors()) {
-                return ResultTool.failedOnly(error.getDefaultMessage());
-            }
-        }
+        ResultTool.valid(bindingResult);
         //todo 现在是简单实现，后续考虑不可逆转流程
         workSheetService.updateRunningWs(workSheetParam);
         return ResultTool.success();
