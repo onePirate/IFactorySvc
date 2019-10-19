@@ -36,9 +36,9 @@ public class CustomerController {
 
         //判断数据库中数据是否已经存在
         QueryWrapper<CustomerModel> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("company", customerModel.getCompany());
-        queryWrapper.eq("name", customerModel.getName());
-        queryWrapper.eq("phone", customerModel.getPhone());
+        queryWrapper.eq(CustomerModel.PROPERTIES_COMPANY, customerModel.getCompany());
+        queryWrapper.eq(CustomerModel.PROPERTIES_NAME, customerModel.getName());
+        queryWrapper.eq(CustomerModel.PROPERTIES_PHONE, customerModel.getPhone());
         CustomerModel queryCustomerModel = customerService.getOne(queryWrapper);
         if (queryCustomerModel != null) {
             CustomerBaseVo customerBaseVo = new CustomerBaseVo();
@@ -61,9 +61,9 @@ public class CustomerController {
     public Result create(@RequestBody SearchPojo searchPojo) {
         QueryWrapper<CustomerModel> queryWrapper = new QueryWrapper<>();
         String searchVal = searchPojo.getSearchVal() == null ? "" : searchPojo.getSearchVal();
-        queryWrapper.like("company", searchVal);
-        queryWrapper.or().like("name", searchVal);
-        queryWrapper.or().like("phone", searchVal);
+        queryWrapper.like(CustomerModel.PROPERTIES_COMPANY, searchVal);
+        queryWrapper.or().like(CustomerModel.PROPERTIES_NAME, searchVal);
+        queryWrapper.or().like(CustomerModel.PROPERTIES_PHONE, searchVal);
         List<CustomerModel> customerModels = customerService.list(queryWrapper);
         return ResultTool.successWithMap(customerModels);
     }

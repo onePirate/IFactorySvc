@@ -16,6 +16,7 @@ public class FlowOrderConstant {
         flowMap.put("6_box_up","BOX_UP");
     }
 
+    public static final String ZERO = "0_mechine_print";
     public static final String FIFTH = "5_weighing";
     public static final String SIXTH = "6_box_up";
 }

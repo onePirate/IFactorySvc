@@ -62,7 +62,9 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
             individualFlowModel.setResetTimes(flowModel.getResetTimes() + 1);
             individualFlowModel.setStatus("1");
         } else {
-            individualFlowModel.setResetTimes(flowModel.getResetTimes());
+            if (!FlowOrderConstant.ZERO.equals(flowRecordParam.getOper())){
+                individualFlowModel.setResetTimes(flowModel.getResetTimes());
+            }
         }
         save(individualFlowModel);
     }

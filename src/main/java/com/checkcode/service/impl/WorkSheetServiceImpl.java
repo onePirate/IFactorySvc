@@ -3,6 +3,7 @@ package com.checkcode.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.checkcode.common.CustomerException;
+import com.checkcode.common.tools.DateTool;
 import com.checkcode.dao.IWorkSheetDao;
 import com.checkcode.entity.mpModel.DeviceIndividualModel;
 import com.checkcode.entity.mpModel.WorkSheetModel;
@@ -71,6 +72,9 @@ public class WorkSheetServiceImpl extends ServiceImpl<IWorkSheetDao, WorkSheetMo
         WorkSheetModel updateWsModel = getOne(queryUpdateWrapper);
         if (updateWsModel != null) {
             updateWsModel.setStatus(workSheetParam.getStatus());
+            if (workSheetParam.getStatus() == 1 && updateWsModel.getStartTime() == null) {
+                updateWsModel.setStartTime(DateTool.getCurStringDate());
+            }
             updateById(updateWsModel);
         }else{
             throw new CustomerException("更新工单不存在");
