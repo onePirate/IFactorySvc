@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration  scan="false" scanPeriod="10 seconds">
     <property name="LOG_NAME" value="D:/Program Files/checkcode/logs" />
+    <!--<property name="LOG_NAME" value="/opt/checkcode/logs" />-->
     <!-- 控制台输出 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
