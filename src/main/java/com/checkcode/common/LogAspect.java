@@ -27,7 +27,8 @@ public class LogAspect {
     /**
      * 需要拦截的class 以及 method
      */
-    @Pointcut("execution(public * com.checkcode.controller.*.*(..))")
+    @Pointcut("execution(public * com.checkcode.controller.*.*(..)) " +
+            "&& !execution(public * com.checkcode.controller.UploadFileController.*(..))")
     public void logPointCut() {}
 
 
@@ -51,7 +52,7 @@ public class LogAspect {
         Object[] args = point.getArgs();
         String paramJson = "";
         try {
-            paramJson = JSONObject.toJSONString(args);
+            paramJson = JSONObject.toJSONString(args[0]);
         }catch (Exception ex){
             log.info("analysis args has errors!",ex);
         }

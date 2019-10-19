@@ -13,7 +13,6 @@ import com.checkcode.service.ICustomerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,19 +30,15 @@ public class CustomerController {
 
     @PostMapping("/create")
     public Result create(@Valid @RequestBody CustomerParam customerParam, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            for (ObjectError error : bindingResult.getAllErrors()) {
-                return ResultTool.failedOnly(error.getDefaultMessage());
-            }
-        }
+        ResultTool.valid(bindingResult);
         CustomerModel customerModel = new CustomerModel();
         BeanUtils.copyProperties(customerParam, customerModel);
 
         //判断数据库中数据是否已经存在
         QueryWrapper<CustomerModel> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("company", customerModel.getCompany());
-        queryWrapper.eq("name", customerModel.getName());
-        queryWrapper.eq("phone", customerModel.getPhone());
+        queryWrapper.eq(CustomerModel.PROPERTIES_COMPANY, customerModel.getCompany());
+        queryWrapper.eq(CustomerModel.PROPERTIES_NAME, customerModel.getName());
+        queryWrapper.eq(CustomerModel.PROPERTIES_PHONE, customerModel.getPhone());
         CustomerModel queryCustomerModel = customerService.getOne(queryWrapper);
         if (queryCustomerModel != null) {
             CustomerBaseVo customerBaseVo = new CustomerBaseVo();
@@ -63,16 +58,12 @@ public class CustomerController {
 
 
     @PostMapping("/queryByAttr")
-    public Result create(@Valid @RequestBody SearchPojo searchPojo, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            for (ObjectError error : bindingResult.getAllErrors()) {
-                return ResultTool.failedOnly(error.getDefaultMessage());
-            }
-        }
+    public Result create(@RequestBody SearchPojo searchPojo) {
         QueryWrapper<CustomerModel> queryWrapper = new QueryWrapper<>();
-        queryWrapper.like("company", searchPojo.getSearchVal());
-        queryWrapper.or().like("name", searchPojo.getSearchVal());
-        queryWrapper.or().like("phone", searchPojo.getSearchVal());
+        String searchVal = searchPojo.getSearchVal() == null ? "" : searchPojo.getSearchVal();
+        queryWrapper.like(CustomerModel.PROPERTIES_COMPANY, searchVal);
+        queryWrapper.or().like(CustomerModel.PROPERTIES_NAME, searchVal);
+        queryWrapper.or().like(CustomerModel.PROPERTIES_PHONE, searchVal);
         List<CustomerModel> customerModels = customerService.list(queryWrapper);
         return ResultTool.successWithMap(customerModels);
     }

@@ -11,14 +11,13 @@ import com.checkcode.common.tools.ResultTool;
 import com.checkcode.common.tools.TokenTool;
 import com.checkcode.dao.IEmployeeDao;
 import com.checkcode.entity.mpModel.EmployeeModel;
-import com.checkcode.entity.pojo.EmployeePojo;
 import com.checkcode.entity.param.EmployeeVaildGroup;
+import com.checkcode.entity.pojo.EmployeePojo;
 import com.checkcode.entity.vo.EmployeeVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,11 +33,7 @@ public class EmployeeController {
 
     @PostMapping("login")
     public Result login(@Validated(EmployeeVaildGroup.LoginGroup.class) @RequestBody EmployeePojo employeePojo, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            for (ObjectError error : bindingResult.getAllErrors()) {
-                return ResultTool.failedOnly(error.getDefaultMessage());
-            }
-        }
+        ResultTool.valid(bindingResult);
         QueryWrapper<EmployeeModel> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("employee_no", employeePojo.getEmployeeNo());
         EmployeeModel employeeModel = userDao.selectOne(queryWrapper);
@@ -64,11 +59,7 @@ public class EmployeeController {
      */
     @PostMapping("employee/create")
     public Result create(@Validated(EmployeeVaildGroup.CreateGroup.class) @RequestBody EmployeePojo employeePojo, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            for (ObjectError error : bindingResult.getAllErrors()) {
-                return ResultTool.failedOnly(error.getDefaultMessage());
-            }
-        }
+        ResultTool.valid(bindingResult);
         if (!employeePojo.getPassword().equals(employeePojo.getConfirmPwd())){
             return ResultTool.failedOnly("密码与确认密码不一致");
         }
