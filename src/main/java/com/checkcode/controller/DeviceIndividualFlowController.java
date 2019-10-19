@@ -1,13 +1,18 @@
 package com.checkcode.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.checkcode.common.FlowOrderConstant;
 import com.checkcode.common.FlowOrderEnum;
 import com.checkcode.common.entity.Result;
 import com.checkcode.common.tools.ResultTool;
+import com.checkcode.entity.mpModel.DeviceIndividualModel;
 import com.checkcode.entity.mpModel.IndividualFlowModel;
 import com.checkcode.entity.param.FlowBoxUpRecordParam;
 import com.checkcode.entity.param.FlowRecordParam;
+import com.checkcode.entity.pojo.SearchPojo;
+import com.checkcode.service.IDeviceIndividualService;
 import com.checkcode.service.IIndividualFlowService;
+import com.checkcode.service.IWorkSheetService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
@@ -18,6 +23,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -28,7 +38,11 @@ public class DeviceIndividualFlowController {
     private static final String BOX_UP = "BOX_UP";
 
     @Autowired
+    IWorkSheetService workSheetService;
+    @Autowired
     IIndividualFlowService individualFlowService;
+    @Autowired
+    IDeviceIndividualService deviceIndividualService;
 
 
     @PostMapping("/record")
@@ -82,6 +96,51 @@ public class DeviceIndividualFlowController {
         }
 
         return ResultTool.successWithMap(individualFlowService.boxUp(flowBoxUpRecordParam));
+    }
+
+
+    @PostMapping("/query")
+    public Result queryWsFlow(@Valid @RequestBody SearchPojo searchPojo, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                return ResultTool.failedOnly(error.getDefaultMessage());
+            }
+        }
+        List<DeviceIndividualModel> deviceIndividualModelList = deviceIndividualService.getIndividualListByCondition(searchPojo.getSearchVal());
+
+        List<String> snList = deviceIndividualModelList.stream().map(o -> {
+            if (o.getSN1() != null) {
+                return o.getSN1();
+            }
+            return o.getSN2();
+        }).collect(Collectors.toList());
+
+        /**
+         * 获取符合条件设备所有的流程
+         */
+        QueryWrapper<IndividualFlowModel> flowModelsQueryWrapper = new QueryWrapper<>();
+        flowModelsQueryWrapper.in(IndividualFlowModel.PROPERTIES_INDIVIDUAL_SN, snList);
+        flowModelsQueryWrapper.orderByAsc(IndividualFlowModel.PROPERTIES_OPER_TIME);
+        List<IndividualFlowModel> flowModelList = individualFlowService.list(flowModelsQueryWrapper);
+
+        /**
+         * 组装返回数据
+         */
+        Map<String, List<IndividualFlowModel>> flowMap = new HashMap<>();
+        int flowModelSize = flowModelList.size();
+        for (int i = 0; i < flowModelSize; i++) {
+            IndividualFlowModel flowModel = flowModelList.get(i);
+            if (flowMap.containsKey(flowModel.getIndividualSn())) {
+                List<IndividualFlowModel> individualFlowModels = flowMap.get(flowModel.getIndividualSn());
+                individualFlowModels.add(flowModel);
+                flowMap.put(flowModel.getIndividualSn(), individualFlowModels);
+            } else {
+                List<IndividualFlowModel> individualFlowModels = new ArrayList<>();
+                individualFlowModels.add(flowModel);
+                flowMap.put(flowModel.getIndividualSn(), individualFlowModels);
+            }
+        }
+        return ResultTool.successWithMap(flowMap);
     }
 
 

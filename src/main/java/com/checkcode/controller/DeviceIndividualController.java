@@ -114,27 +114,8 @@ public class DeviceIndividualController {
                 return ResultTool.failedOnly(error.getDefaultMessage());
             }
         }
-        //查询当前正在运行的工单号
-        QueryWrapper<WorkSheetModel> queryWsWrapper = new QueryWrapper<>();
-        queryWsWrapper.eq(WorkSheetModel.STATUS, 1);
-        WorkSheetModel workSheetModel = workSheetService.getOne(queryWsWrapper);
 
-        if (workSheetModel == null) {
-            return ResultTool.failedOnly("没有正在生产中的工单");
-        }
-
-        QueryWrapper<DeviceIndividualModel> queryIndividualListWrapper = new QueryWrapper<>();
-        queryIndividualListWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, workSheetModel.getCode());
-        String searchVal = searchPojo.getSearchVal();
-        queryIndividualListWrapper.and(properties ->
-                properties.like(DeviceIndividualModel.PROPERTIES_SN1, searchVal)
-                        .or().like(DeviceIndividualModel.PROPERTIES_SN2, searchVal)
-                        .or().like(DeviceIndividualModel.PROPERTIES_IMEI1, searchVal)
-                        .or().like(DeviceIndividualModel.PROPERTIES_IMEI2, searchVal)
-                        .or().like(DeviceIndividualModel.PROPERTIES_IMEI3, searchVal)
-                        .or().like(DeviceIndividualModel.PROPERTIES_IMEI4, searchVal)
-        );
-        List<DeviceIndividualModel> deviceIndividualModelList = deviceIndividualService.list(queryIndividualListWrapper);
+        List<DeviceIndividualModel> deviceIndividualModelList = deviceIndividualService.getIndividualListByCondition(searchPojo.getSearchVal());
 
         List<String> snList = deviceIndividualModelList.stream().map(o -> {
             if (o.getSN1() != null) {
@@ -158,7 +139,7 @@ public class DeviceIndividualController {
                 DeviceIndividualDetailVo deviceIndividualDetailVo = new DeviceIndividualDetailVo();
                 BeanUtils.copyProperties(sourceModel, deviceIndividualDetailVo);
                 if (!StringUtils.isEmpty(sourceModel.getSN1())) {
-                    if (flowModelMap.get(sourceModel.getSN1()) != null){
+                    if (flowModelMap.get(sourceModel.getSN1()) != null) {
                         deviceIndividualDetailVo.setOper(flowModelMap.get(sourceModel.getSN1()).getOper());
                         deviceIndividualDetailVo.setStatus(flowModelMap.get(sourceModel.getSN1()).getStatus());
                     }
