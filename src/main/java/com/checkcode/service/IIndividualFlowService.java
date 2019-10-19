@@ -5,6 +5,8 @@ import com.checkcode.entity.mpModel.IndividualFlowModel;
 import com.checkcode.entity.param.FlowRecordParam;
 import com.checkcode.entity.vo.FlowProgressVo;
 
+import java.util.List;
+
 public interface IIndividualFlowService extends IService<IndividualFlowModel> {
 
     /**
@@ -29,4 +31,6 @@ public interface IIndividualFlowService extends IService<IndividualFlowModel> {
      * @return
      */
     FlowProgressVo recordFlowAndGetProcess(FlowRecordParam flowRecordParam);
+
+    List<IndividualFlowModel> getOperStatusBySnList(List<String> snList);
 }

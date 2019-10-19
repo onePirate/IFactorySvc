@@ -43,9 +43,9 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
      * @param flowRecordParam
      */
     @Override
-    public void recordFlow(FlowRecordParam flowRecordParam){
+    public void recordFlow(FlowRecordParam flowRecordParam) {
         IndividualFlowModel individualFlowModel = new IndividualFlowModel();
-        BeanUtils.copyProperties(flowRecordParam,individualFlowModel);
+        BeanUtils.copyProperties(flowRecordParam, individualFlowModel);
         individualFlowModel.setResetTimes(0);
         save(individualFlowModel);
     }
@@ -82,15 +82,17 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
             }
             return o.getSN2();
         }).collect(Collectors.toList());
-//        QueryWrapper<IndividualFlowModel> queryDeviceCurStatusDataWrapper = new QueryWrapper<>();
-//        queryDeviceCurStatusDataWrapper.in(IndividualFlowModel.PROPERTIES_INDIVIDUAL_SN, snList);
-//        queryDeviceCurStatusDataWrapper.eq(IndividualFlowModel.PROPERTIES_OPER,flowRecordParam.getOper());
-//        queryDeviceCurStatusDataWrapper.eq(IndividualFlowModel.PROPERTIES_STATUS,1);
-        List<IndividualFlowModel> flowModelList = baseMapper.getAnyOperFinishedData(snList,flowRecordParam.getOper());
+        List<IndividualFlowModel> flowModelList = baseMapper.getAnyOperFinishedData(snList, flowRecordParam.getOper(), "1");
 
         int finishedCount = flowModelList.size();
 
         FlowProgressVo flowProgressVo = FlowProgressVo.builder().total(total).finished(finishedCount).build();
         return flowProgressVo;
+    }
+
+
+    @Override
+    public List<IndividualFlowModel> getOperStatusBySnList(List<String> snList) {
+        return baseMapper.getOperStatusBySnList(snList);
     }
 }
