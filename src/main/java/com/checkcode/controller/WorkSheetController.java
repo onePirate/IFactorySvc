@@ -8,6 +8,7 @@ import com.checkcode.common.StateEnum;
 import com.checkcode.common.entity.Result;
 import com.checkcode.common.tools.IdWorker;
 import com.checkcode.common.tools.ResultTool;
+import com.checkcode.entity.mpModel.CustomerModel;
 import com.checkcode.entity.mpModel.DeviceIndividualModel;
 import com.checkcode.entity.mpModel.WorkSheetModel;
 import com.checkcode.entity.param.WorkSheetCreateParam;
@@ -15,6 +16,8 @@ import com.checkcode.entity.param.WorkSheetGroup;
 import com.checkcode.entity.param.WorkSheetParam;
 import com.checkcode.entity.pojo.DeviceIndividualPojo;
 import com.checkcode.entity.vo.WorkSheetSimpleVo;
+import com.checkcode.entity.vo.WorkSheetVo;
+import com.checkcode.service.ICustomerService;
 import com.checkcode.service.IDeviceIndividualService;
 import com.checkcode.service.IWorkSheetService;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +36,9 @@ import javax.validation.Valid;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -45,6 +50,8 @@ public class WorkSheetController {
     IDeviceIndividualService deviceIndividualService;
     @Autowired
     IWorkSheetService workSheetService;
+    @Autowired
+    ICustomerService customerService;
 
     /**
      * 创建工单，并且添加工单包含的所有设备信息
@@ -113,6 +120,7 @@ public class WorkSheetController {
     @PostMapping("/list")
     public Result listWorkSheet(@RequestBody WorkSheetParam workSheetParam) {
         if (workSheetParam != null) {
+            List<WorkSheetVo> workSheetVoList = new ArrayList<>();
             //如果两个参数为null，则返回所有可运行的数据
             if (StringUtils.isEmpty(workSheetParam.getCode()) && workSheetParam.getStatus() == null) {
                 List<WorkSheetModel> runningWsList = workSheetService.getRunningWs();
@@ -121,7 +129,12 @@ public class WorkSheetController {
                 queryReadyWrapper.in(WorkSheetModel.STATUS, 0, 2);
                 List<WorkSheetModel> readyWsList = workSheetService.list(queryReadyWrapper);
                 runningWsList.addAll(readyWsList);
-                return ResultTool.successWithMap(runningWsList);
+
+                if (runningWsList != null && runningWsList.size()>0) {
+                    workSheetVoList = getWsVoDetailList(runningWsList);
+                }
+
+                return ResultTool.successWithMap(workSheetVoList);
             }
 
             QueryWrapper<WorkSheetModel> queryWrapper = new QueryWrapper<>();
@@ -132,9 +145,44 @@ public class WorkSheetController {
                 queryWrapper.eq(WorkSheetModel.STATUS, workSheetParam.getStatus());
             }
             List<WorkSheetModel> queryWsList = workSheetService.list(queryWrapper);
-            return ResultTool.successWithMap(queryWsList);
+            if (queryWsList != null && queryWsList.size()>0) {
+                workSheetVoList = getWsVoDetailList(queryWsList);
+            }
+            return ResultTool.successWithMap(workSheetVoList);
         }
         return ResultTool.failed(StateEnum.REQ_HAS_ERR);
+    }
+
+    /**
+     * 获取对应的客户信息
+     */
+    private List<WorkSheetVo> getWsVoDetailList(List<WorkSheetModel> queryWsList){
+        List<String> customerNos = queryWsList.stream().map(WorkSheetModel::getCustomerNo).collect(Collectors.toList());
+        QueryWrapper<CustomerModel> queryCustomerWrapper = new QueryWrapper<>();
+        queryCustomerWrapper.in(CustomerModel.PROPERTIES_CUSTOMER_NO, customerNos);
+        List<CustomerModel> customerModelList = customerService.list(queryCustomerWrapper);
+        Map<String, CustomerModel> cusMap = new HashMap<>();
+        int cusSize = customerModelList.size();
+        for (int i = 0; i < cusSize; i++) {
+            cusMap.put(customerModelList.get(i).getCustomerNo(), customerModelList.get(i));
+        }
+
+        //组装对应的客户信息
+        List<WorkSheetVo> workSheetVoList = new ArrayList<>();
+        int wsSize =  queryWsList.size();
+        for (int i = 0; i < wsSize; i++) {
+            WorkSheetModel workSheetModel = queryWsList.get(i);
+            WorkSheetVo workSheetVo = new WorkSheetVo();
+            BeanUtils.copyProperties(workSheetModel,workSheetVo);
+            CustomerModel customerModel = cusMap.get(workSheetModel.getCustomerNo());
+            workSheetVo.setCusName(customerModel.getName());
+            workSheetVo.setCusAddress(customerModel.getAddress());
+            workSheetVo.setCusCompany(customerModel.getCompany());
+            workSheetVo.setCusPhone(customerModel.getPhone());
+            workSheetVo.setCusIcon(customerModel.getIcon());
+            workSheetVoList.add(workSheetVo);
+        }
+        return workSheetVoList;
     }
 
 

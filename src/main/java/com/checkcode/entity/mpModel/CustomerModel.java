@@ -21,4 +21,11 @@ public class CustomerModel {
     private String address;
 
     private String icon;
+
+    public static final String PROPERTIES_CUSTOMER_NO = "customer_no";
+    public static final String PROPERTIES_COMPANY = "company";
+    public static final String PROPERTIES_NAME = "name";
+    public static final String PROPERTIES_PHONE = "phone";
+    public static final String PROPERTIES_ADDRESS = "address";
+    public static final String PROPERTIES_ICON = "icon";
 }

@@ -10,23 +10,23 @@ import lombok.Data;
 public class WorkSheetModel{
 
     @TableId(type = IdType.INPUT)
-    private String code;
-    private String name;
-    private String createTime;
-    private String startTime;
-    private String deadline;
-    private Integer status;
-    private String customerNo;
-    private String platform;
-    private String deviceType;
-    private String typeCode;
-    private String brandName;
-    private String color;
-    private String fullWeight;
-    private String trueWeight;
-    private String deviceSize;
-    private String thickness;
-    private String extendInfo;
+    protected String code;
+    protected String name;
+    protected String createTime;
+    protected String startTime;
+    protected String deadline;
+    protected Integer status;
+    protected String customerNo;
+    protected String platform;
+    protected String deviceType;
+    protected String typeCode;
+    protected String brandName;
+    protected String color;
+    protected String fullWeight;
+    protected String trueWeight;
+    protected String deviceSize;
+    protected String thickness;
+    protected String extendInfo;
 
     public static final String CODE ="code";
     public static final String NAME ="name";

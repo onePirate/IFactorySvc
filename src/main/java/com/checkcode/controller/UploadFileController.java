@@ -6,6 +6,7 @@ import com.checkcode.common.entity.Result;
 import com.checkcode.common.tools.ResultTool;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,7 +43,9 @@ public class UploadFileController {
         //选择了文件，开始进行上传操作
         try {
             String uploadFilePath = uploadOriFile(fileName,fileSavePath);
-            uploadOriFile(fileName,fileBakPath);
+            if (!StringUtils.isEmpty(fileBakPath)) {
+                uploadOriFile(fileName,fileBakPath);
+            }
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("fileUrl",uploadFilePath);
             return ResultTool.successWithMap(jsonObject);

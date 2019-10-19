@@ -158,11 +158,15 @@ public class DeviceIndividualController {
                 DeviceIndividualDetailVo deviceIndividualDetailVo = new DeviceIndividualDetailVo();
                 BeanUtils.copyProperties(sourceModel, deviceIndividualDetailVo);
                 if (!StringUtils.isEmpty(sourceModel.getSN1())) {
-                    deviceIndividualDetailVo.setOper(flowModelMap.get(sourceModel.getSN1()).getOper());
-                    deviceIndividualDetailVo.setStatus(flowModelMap.get(sourceModel.getSN1()).getStatus());
+                    if (flowModelMap.get(sourceModel.getSN1()) != null){
+                        deviceIndividualDetailVo.setOper(flowModelMap.get(sourceModel.getSN1()).getOper());
+                        deviceIndividualDetailVo.setStatus(flowModelMap.get(sourceModel.getSN1()).getStatus());
+                    }
                 } else {
-                    deviceIndividualDetailVo.setOper(flowModelMap.get(sourceModel.getSN2()).getOper());
-                    deviceIndividualDetailVo.setStatus(flowModelMap.get(sourceModel.getSN2()).getStatus());
+                    if (flowModelMap.get(sourceModel.getSN2()) != null) {
+                        deviceIndividualDetailVo.setOper(flowModelMap.get(sourceModel.getSN2()).getOper());
+                        deviceIndividualDetailVo.setStatus(flowModelMap.get(sourceModel.getSN2()).getStatus());
+                    }
                 }
                 deviceIndividualDetailVoList.add(deviceIndividualDetailVo);
             }
