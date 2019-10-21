@@ -1,6 +1,7 @@
 file:
   savePath: D:/Program Files/checkcode/file
   bakPath: D:/.checkcode
+  separator: \\
 
 spring:
   datasource:

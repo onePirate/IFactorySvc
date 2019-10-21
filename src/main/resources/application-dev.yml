@@ -1,6 +1,7 @@
 file:
   savePath: /opt/checkcode/file
   bakPath:
+  separator: /
 
 spring:
   datasource:
