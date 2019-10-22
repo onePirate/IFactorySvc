@@ -3,10 +3,10 @@ server:
 
 spring:
   profiles:
-    active: dev
+    active: prod
 
 #单位：毫秒
 token:
-  switch: false
+  switch: true
   timeout: 86400000
 

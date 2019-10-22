@@ -48,8 +48,4 @@ public class DeviceIndividualVo {
     @JsonProperty(value = "EXTRA3")
     protected String EXTRA3;
 
-    protected String weight;
-
-    protected String worksheetCode;
-
 }
