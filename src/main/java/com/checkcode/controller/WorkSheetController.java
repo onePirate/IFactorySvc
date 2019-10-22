@@ -185,11 +185,13 @@ public class WorkSheetController {
             WorkSheetVo workSheetVo = new WorkSheetVo();
             BeanUtils.copyProperties(workSheetModel,workSheetVo);
             CustomerModel customerModel = cusMap.get(workSheetModel.getCustomerNo());
-            workSheetVo.setCusName(customerModel.getName());
-            workSheetVo.setCusAddress(customerModel.getAddress());
-            workSheetVo.setCusCompany(customerModel.getCompany());
-            workSheetVo.setCusPhone(customerModel.getPhone());
-            workSheetVo.setCusIcon(customerModel.getIcon());
+            if (customerModel != null) {
+                workSheetVo.setCusName(customerModel.getName());
+                workSheetVo.setCusAddress(customerModel.getAddress());
+                workSheetVo.setCusCompany(customerModel.getCompany());
+                workSheetVo.setCusPhone(customerModel.getPhone());
+                workSheetVo.setCusIcon(customerModel.getIcon());
+            }
             workSheetVoList.add(workSheetVo);
         }
         return workSheetVoList;

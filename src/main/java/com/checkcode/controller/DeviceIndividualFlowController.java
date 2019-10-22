@@ -53,16 +53,17 @@ public class DeviceIndividualFlowController {
     public Result recordDeviceFlow(@Validated(FlowRecordVaildGroup.NormalGroup.class) @RequestBody FlowRecordParam flowRecordParam, BindingResult bindingResult) {
         ResultTool.valid(bindingResult);
 
-        if (MECHINE_PRINT.equals(FlowOrderConstant.flowMap.get(flowRecordParam.getOper()))) {
-            //如果当前流程是第一个流程直接记录，判断是否以及记录过了
-            IndividualFlowModel individualFlowModel = individualFlowService.getDeviceLastRecord(flowRecordParam.getIndividualSn());
-            if (individualFlowModel != null) {
-                String errMsg = "设备机码打印流程已经记录";
-                log.warn(flowRecordParam.getIndividualSn() + "->" + errMsg);
-                return ResultTool.failedOnly(errMsg);
-            }
-            return ResultTool.successWithMap(individualFlowService.recordFlowAndGetProcess(flowRecordParam, false));
-        } else if (BOX_UP.equals(FlowOrderConstant.flowMap.get(flowRecordParam.getOper()))) {
+//        if (MECHINE_PRINT.equals(FlowOrderConstant.flowMap.get(flowRecordParam.getOper()))) {
+//            //如果当前流程是第一个流程直接记录，判断是否以及记录过了
+//            IndividualFlowModel individualFlowModel = individualFlowService.getDeviceLastRecord(flowRecordParam.getIndividualSn());
+//            if (individualFlowModel != null) {
+//                String errMsg = "设备机码打印流程已经记录";
+//                log.warn(flowRecordParam.getIndividualSn() + "->" + errMsg);
+//                return ResultTool.failedOnly(errMsg);
+//            }
+//            return ResultTool.successWithMap(individualFlowService.recordFlowAndGetProcess(flowRecordParam, false));
+//        } else
+        if (BOX_UP.equals(FlowOrderConstant.flowMap.get(flowRecordParam.getOper()))) {
             //如果当前流程是最后一个流程，返回错误提示，装箱流程不在这个接口中操作
             String errMsg = "装箱不在这里操作";
             log.warn(flowRecordParam.getIndividualSn() + "->" + errMsg);
