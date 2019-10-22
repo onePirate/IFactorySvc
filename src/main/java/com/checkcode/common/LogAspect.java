@@ -29,11 +29,13 @@ public class LogAspect {
      */
     @Pointcut("execution(public * com.checkcode.controller.*.*(..)) " +
             "&& !execution(public * com.checkcode.controller.UploadFileController.*(..))")
-    public void logPointCut() {}
+    public void logPointCut() {
+    }
 
 
     /**
      * 环绕通知 @Around
+     *
      * @param point
      * @return
      * @throws Throwable
@@ -43,7 +45,7 @@ public class LogAspect {
         long beginTime = System.currentTimeMillis();
         Object target = point.getTarget();
         Signature sig = point.getSignature();
-       MethodSignature msig = null;
+        MethodSignature msig = null;
         if (!(sig instanceof MethodSignature)) {
             throw new IllegalArgumentException("annotation use error");
         }
@@ -52,24 +54,26 @@ public class LogAspect {
         Object[] args = point.getArgs();
         String paramJson = "";
         try {
-            paramJson = JSONObject.toJSONString(args[0]);
-        }catch (Exception ex){
-            log.info("analysis args has errors!",ex);
+            if (args.length > 0) {
+                paramJson = JSONObject.toJSONString(args[0]);
+            }
+        } catch (Exception ex) {
+            log.info("analysis args has errors!", ex);
         }
-        log.info("[METHOD]:{}, [TIME]:{}, [PARAM]:{}",currentMethod.getName() , beginTime, paramJson);
+        log.info("[METHOD]:{}, [TIME]:{}, [PARAM]:{}", currentMethod.getName(), beginTime, paramJson);
         Object result = point.proceed();
-        try{
+        try {
             JSONObject resultJson = JSONObject.parseObject(JSONObject.toJSONString(result));
-            if (resultJson.getIntValue("code")!=200){
-                log.info("[METHOD]:{}, [TIME]:{}, [RESULT]:{}, [COSTTIME] : {}",currentMethod.getName(), beginTime,JSONObject.toJSONString(result),System.currentTimeMillis() - beginTime);
-            }else{
+            if (resultJson.getIntValue("code") != 200) {
+                log.info("[METHOD]:{}, [TIME]:{}, [RESULT]:{}, [COSTTIME] : {}", currentMethod.getName(), beginTime, JSONObject.toJSONString(result), System.currentTimeMillis() - beginTime);
+            } else {
                 long costTime = System.currentTimeMillis() - beginTime;
                 if (costTime > executeTimeMill_50) {
-                    log.info("[METHOD]:{}, [TIME]:{}, [COSTTIME] : {}",currentMethod.getName(), beginTime,costTime);
-                    log.debug("[METHOD]:{}, [TIME]:{}, [RESULT]:{}, [COSTTIME] : {}",currentMethod.getName(), beginTime,JSONObject.toJSONString(result),costTime);
+                    log.info("[METHOD]:{}, [TIME]:{}, [COSTTIME] : {}", currentMethod.getName(), beginTime, costTime);
+                    log.debug("[METHOD]:{}, [TIME]:{}, [RESULT]:{}, [COSTTIME] : {}", currentMethod.getName(), beginTime, JSONObject.toJSONString(result), costTime);
                 }
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             log.warn("the result isn't json data.");
         }
         return result;
