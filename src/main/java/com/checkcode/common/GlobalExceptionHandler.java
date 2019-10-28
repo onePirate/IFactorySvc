@@ -5,6 +5,7 @@ import com.checkcode.common.tools.ResultTool;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ConstraintViolationException;
@@ -29,6 +30,17 @@ public class GlobalExceptionHandler {
     public Result runtimeExceptionHandler(CustomerException e) {
         log.error("server has error!",e);
         return ResultTool.failedOnly(e.getMessage());
+    }
+    /**
+     * 默认统一异常处理方法
+     * @param e 默认CustomerException异常对象
+     * @return
+     */
+    @ExceptionHandler(value = HttpMediaTypeNotSupportedException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Result httpMediaTypeNotSupportedExceptionExceptionHandler(CustomerException e) {
+        log.error("server has error!",e);
+        return ResultTool.failedOnly("仅支持application/json类型");
     }
 
     /**

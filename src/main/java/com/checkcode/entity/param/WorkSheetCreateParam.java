@@ -16,6 +16,9 @@ public class WorkSheetCreateParam {
     @NotEmpty(message = "客户不能为空")
     private String customerNo;
 
+    @NotEmpty(message = "员工工号不能为空")
+    private String employeeNo;
+
     @NotEmpty(message = "平台不能为空")
     private String platform;
 

@@ -8,6 +8,8 @@ import com.checkcode.entity.mpModel.IndividualFlowModel;
 import com.checkcode.entity.mpModel.WorkSheetModel;
 import com.checkcode.entity.pojo.SearchPojo;
 import com.checkcode.entity.vo.DeviceIndividualDetailVo;
+import com.checkcode.entity.vo.DeviceIndividualVo;
+import com.checkcode.entity.vo.DeviceInfoComposeVo;
 import com.checkcode.entity.vo.FlowProgressVo;
 import com.checkcode.service.IDeviceIndividualService;
 import com.checkcode.service.IIndividualFlowService;
@@ -119,7 +121,7 @@ public class DeviceIndividualController {
             return o.getSN2();
         }).collect(Collectors.toList());
 
-        List<DeviceIndividualDetailVo> deviceIndividualDetailVoList = new ArrayList<>();
+        List<DeviceInfoComposeVo> deviceInfoComposeVos = new ArrayList<>();
         if (snList != null && snList.size() > 0) {
             List<IndividualFlowModel> flowModelList = individualFlowService.getOperStatusBySnList(snList);
             Map<String, IndividualFlowModel> flowModelMap = new HashMap<>();
@@ -131,8 +133,12 @@ public class DeviceIndividualController {
             int size = deviceIndividualModelList.size();
             for (int i = 0; i < size; i++) {
                 DeviceIndividualModel sourceModel = deviceIndividualModelList.get(i);
+                DeviceIndividualVo deviceIndividualVo = new DeviceIndividualVo();
+                BeanUtils.copyProperties(sourceModel, deviceIndividualVo);
+
                 DeviceIndividualDetailVo deviceIndividualDetailVo = new DeviceIndividualDetailVo();
-                BeanUtils.copyProperties(sourceModel, deviceIndividualDetailVo);
+                deviceIndividualDetailVo.setWorksheetCode(sourceModel.getWorksheetCode());
+                deviceIndividualDetailVo.setWeight(sourceModel.getWeight());
                 if (!StringUtils.isEmpty(sourceModel.getSN1())) {
                     if (flowModelMap.get(sourceModel.getSN1()) != null) {
                         deviceIndividualDetailVo.setOper(flowModelMap.get(sourceModel.getSN1()).getOper());
@@ -144,10 +150,12 @@ public class DeviceIndividualController {
                         deviceIndividualDetailVo.setStatus(flowModelMap.get(sourceModel.getSN2()).getStatus());
                     }
                 }
-                deviceIndividualDetailVoList.add(deviceIndividualDetailVo);
+
+                DeviceInfoComposeVo deviceInfoComposeVo = DeviceInfoComposeVo.builder().deviceInfo(deviceIndividualVo).deviceOtherInfo(deviceIndividualDetailVo).build();
+                deviceInfoComposeVos.add(deviceInfoComposeVo);
             }
         }
-        return ResultTool.successWithMap(deviceIndividualDetailVoList);
+        return ResultTool.successWithMap(deviceInfoComposeVos);
     }
 
 

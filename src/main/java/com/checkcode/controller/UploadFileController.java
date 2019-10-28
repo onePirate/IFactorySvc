@@ -33,6 +33,8 @@ public class UploadFileController {
     String fileSavePath;
     @Value("${file.bakPath}")
     String fileBakPath;
+    @Value("${file.separator}")
+    String fileSeparator;
 
 
     @PostMapping("/uploadFile")
@@ -77,7 +79,7 @@ public class UploadFileController {
         String fileAllName = fileName.getOriginalFilename();
         String filePrefixName = fileAllName.substring(0, fileAllName.lastIndexOf("."));
         String fileSuffixName = fileAllName.substring(fileAllName.lastIndexOf("."));
-        String uploadFile = upload.getAbsolutePath() + "\\" + filePrefixName + "-" + YMDHMS.format(new Date()) + fileSuffixName;
+        String uploadFile = upload.getAbsolutePath() + fileSeparator + filePrefixName + "-" + YMDHMS.format(new Date()) + fileSuffixName;
         log.info("完整的上传路径:" + uploadFile);
         //根据srcFile的大小，准备一个字节数组
         byte[] bytes = fileName.getBytes();

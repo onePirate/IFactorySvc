@@ -3,25 +3,32 @@ package com.checkcode.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.checkcode.common.CustomerException;
+import com.checkcode.common.FlowOrderConstant;
 import com.checkcode.common.tools.DateTool;
 import com.checkcode.dao.IWorkSheetDao;
 import com.checkcode.entity.mpModel.DeviceIndividualModel;
+import com.checkcode.entity.mpModel.IndividualFlowModel;
 import com.checkcode.entity.mpModel.WorkSheetModel;
 import com.checkcode.entity.param.WorkSheetCreateParam;
 import com.checkcode.entity.param.WorkSheetParam;
 import com.checkcode.service.IDeviceIndividualService;
+import com.checkcode.service.IIndividualFlowService;
 import com.checkcode.service.IWorkSheetService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class WorkSheetServiceImpl extends ServiceImpl<IWorkSheetDao, WorkSheetModel> implements IWorkSheetService {
 
+    @Autowired
+    IIndividualFlowService individualFlowService;
     @Autowired
     IDeviceIndividualService deviceIndividualService;
 
@@ -44,6 +51,23 @@ public class WorkSheetServiceImpl extends ServiceImpl<IWorkSheetDao, WorkSheetMo
         workSheetModel.setStatus(0);
         workSheetModel.setDeadline(workSheetCreateParam.getDeadline());
         save(workSheetModel);
+
+        //以下是组装设备流程初始化数据
+        List<IndividualFlowModel> flowModelList = new ArrayList<>();
+        int deviceNumSize = deviceIndividualList.size();
+        for (int i = 0; i < deviceNumSize; i++) {
+            DeviceIndividualModel individualModel = deviceIndividualList.get(i);
+            IndividualFlowModel individualFlowModel = new IndividualFlowModel();
+            individualFlowModel.setIndividualSn(individualModel.getSN1());
+            if (StringUtils.isEmpty(individualFlowModel.getIndividualSn())){
+                individualFlowModel.setIndividualSn(individualModel.getSN2());
+            }
+            individualFlowModel.setEmployeeNo(workSheetCreateParam.getEmployeeNo());
+            individualFlowModel.setOper(FlowOrderConstant.INITIALIZE);
+            individualFlowModel.setStatus("1");
+            flowModelList.add(individualFlowModel);
+        }
+        individualFlowService.saveBatch(flowModelList);
     }
 
 

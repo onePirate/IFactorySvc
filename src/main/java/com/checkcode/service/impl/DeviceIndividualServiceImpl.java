@@ -32,12 +32,12 @@ public class DeviceIndividualServiceImpl extends ServiceImpl<IDeviceIndividualDa
         queryIndividualListWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, runningWs.get(0).getCode());
         String searchValue = searchVal == null ? "" : searchVal;
         queryIndividualListWrapper.and(properties ->
-                properties.like(DeviceIndividualModel.PROPERTIES_SN1, searchValue)
-                        .or().like(DeviceIndividualModel.PROPERTIES_SN2, searchValue)
-                        .or().like(DeviceIndividualModel.PROPERTIES_IMEI1, searchValue)
-                        .or().like(DeviceIndividualModel.PROPERTIES_IMEI2, searchValue)
-                        .or().like(DeviceIndividualModel.PROPERTIES_IMEI3, searchValue)
-                        .or().like(DeviceIndividualModel.PROPERTIES_IMEI4, searchValue)
+                properties.eq(DeviceIndividualModel.PROPERTIES_SN1, searchValue)
+                        .or().eq(DeviceIndividualModel.PROPERTIES_SN2, searchValue)
+                        .or().eq(DeviceIndividualModel.PROPERTIES_IMEI1, searchValue)
+                        .or().eq(DeviceIndividualModel.PROPERTIES_IMEI2, searchValue)
+                        .or().eq(DeviceIndividualModel.PROPERTIES_IMEI3, searchValue)
+                        .or().eq(DeviceIndividualModel.PROPERTIES_IMEI4, searchValue)
         );
         List<DeviceIndividualModel> deviceIndividualModelList = list(queryIndividualListWrapper);
         return deviceIndividualModelList;

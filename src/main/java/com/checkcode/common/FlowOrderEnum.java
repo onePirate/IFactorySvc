@@ -8,7 +8,8 @@ public enum FlowOrderEnum {
     /**
      * 记录当前流程的上个流程和下个流程
      */
-    MECHINE_PRINT("","1_write_code"),
+    INITIALIZE("","0_mechine_print"),
+    MECHINE_PRINT("-1_initialize","1_write_code"),
     WRITE_CODE("0_mechine_print","2_check_code"),
     CHECK_CODE("1_write_code","3_print_code"),
     PRINT_CODE("2_check_code","4_three_code_to_one"),
