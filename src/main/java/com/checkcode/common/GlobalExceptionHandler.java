@@ -9,6 +9,7 @@ import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ConstraintViolationException;
+import java.sql.SQLIntegrityConstraintViolationException;
 
 /**
  * @Author: gaodw
@@ -38,9 +39,20 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = HttpMediaTypeNotSupportedException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Result httpMediaTypeNotSupportedExceptionExceptionHandler(CustomerException e) {
+    public Result httpMediaTypeNotSupportedExceptionExceptionHandler(HttpMediaTypeNotSupportedException e) {
         log.error("server has error!",e);
         return ResultTool.failedOnly("仅支持application/json类型");
+    }
+    /**
+     * 默认统一异常处理方法
+     * @param e SQLIntegrityConstraintViolationException
+     * @return
+     */
+    @ExceptionHandler(value = SQLIntegrityConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Result sqlIntegrityConstraintViolationExceptionHandler(SQLIntegrityConstraintViolationException e) {
+        log.error("server has error!",e);
+        return ResultTool.failedOnly("员工账号重复");
     }
 
     /**

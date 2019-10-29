@@ -53,16 +53,6 @@ public class DeviceIndividualFlowController {
     public Result recordDeviceFlow(@Validated(FlowRecordVaildGroup.NormalGroup.class) @RequestBody FlowRecordParam flowRecordParam, BindingResult bindingResult) {
         ResultTool.valid(bindingResult);
 
-//        if (MECHINE_PRINT.equals(FlowOrderConstant.flowMap.get(flowRecordParam.getOper()))) {
-//            //如果当前流程是第一个流程直接记录，判断是否以及记录过了
-//            IndividualFlowModel individualFlowModel = individualFlowService.getDeviceLastRecord(flowRecordParam.getIndividualSn());
-//            if (individualFlowModel != null) {
-//                String errMsg = "设备机码打印流程已经记录";
-//                log.warn(flowRecordParam.getIndividualSn() + "->" + errMsg);
-//                return ResultTool.failedOnly(errMsg);
-//            }
-//            return ResultTool.successWithMap(individualFlowService.recordFlowAndGetProcess(flowRecordParam, false));
-//        } else
         if (BOX_UP.equals(FlowOrderConstant.flowMap.get(flowRecordParam.getOper()))) {
             //如果当前流程是最后一个流程，返回错误提示，装箱流程不在这个接口中操作
             String errMsg = "装箱不在这里操作";
@@ -79,7 +69,12 @@ public class DeviceIndividualFlowController {
         }
         FlowOrderEnum flowOrderEnum = FlowOrderEnum.valueOf(FlowOrderConstant.flowMap.get(individualFlowModel.getOper()));
         if (flowOrderEnum.getNextFlow().equals(flowRecordParam.getOper())) {
-            return ResultTool.successWithMap(individualFlowService.recordFlowAndGetProcess(flowRecordParam, false));
+            if (FlowOrderConstant.ZERO.equals(flowRecordParam.getOper()) && "1".equals(flowRecordParam.getStatus())) {
+                return ResultTool.successWithMap(individualFlowService.mechinePrintSuccessUpdateIndividualStatusOne(flowRecordParam));
+            } else {
+                return ResultTool.successWithMap(individualFlowService.recordFlowAndGetProcess(flowRecordParam, false));
+            }
+
         }
         String errMsg = "流程有误，请确保操作流程正确";
         log.warn(flowRecordParam.getIndividualSn() + "->" + errMsg);
@@ -117,7 +112,9 @@ public class DeviceIndividualFlowController {
          * 获取符合条件设备所有的流程
          */
         if (snList != null && snList.size() > 0) {
+
             QueryWrapper<IndividualFlowModel> flowModelsQueryWrapper = new QueryWrapper<>();
+            flowModelsQueryWrapper.eq(IndividualFlowModel.PROPERTIES_WORKSHEET_CODE, deviceIndividualModelList.get(0).getWorksheetCode());
             flowModelsQueryWrapper.in(IndividualFlowModel.PROPERTIES_INDIVIDUAL_SN, snList);
             flowModelsQueryWrapper.orderByAsc(IndividualFlowModel.PROPERTIES_OPER_TIME);
             List<IndividualFlowModel> flowModelList = individualFlowService.list(flowModelsQueryWrapper);
@@ -160,6 +157,10 @@ public class DeviceIndividualFlowController {
         int inputFlowNum = Integer.valueOf(flowRecordParam.getOper().split("_")[0]);
         if (inputFlowNum > lastFlowNum) {
             throw new CustomerException("请保证重置流程正确");
+        }
+        if (FlowOrderConstant.INITIALIZE.equals(flowRecordParam.getOper())) {
+            FlowProgressVo flowProgressVo = individualFlowService.resetToInitializeNeedUpdateIndividualStatusZero(flowRecordParam);
+            return ResultTool.successWithMap(flowProgressVo);
         }
         FlowProgressVo flowProgressVo = individualFlowService.recordFlowAndGetProcess(flowRecordParam, true);
         return ResultTool.successWithMap(flowProgressVo);

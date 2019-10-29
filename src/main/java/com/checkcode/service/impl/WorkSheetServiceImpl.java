@@ -58,6 +58,7 @@ public class WorkSheetServiceImpl extends ServiceImpl<IWorkSheetDao, WorkSheetMo
         for (int i = 0; i < deviceNumSize; i++) {
             DeviceIndividualModel individualModel = deviceIndividualList.get(i);
             IndividualFlowModel individualFlowModel = new IndividualFlowModel();
+            individualFlowModel.setWorksheetCode(workSheetModel.getCode());
             individualFlowModel.setIndividualSn(individualModel.getSN1());
             if (StringUtils.isEmpty(individualFlowModel.getIndividualSn())){
                 individualFlowModel.setIndividualSn(individualModel.getSN2());

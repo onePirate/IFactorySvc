@@ -51,13 +51,12 @@ public class DeviceIndividualController {
     @PostMapping("/one")
     public Result getOne() {
         //查询当前正在运行的工单号
-        QueryWrapper<WorkSheetModel> queryWsWrapper = new QueryWrapper<>();
-        queryWsWrapper.eq(WorkSheetModel.STATUS, 1);
-        WorkSheetModel workSheetModel = workSheetService.getOne(queryWsWrapper);
+        List<WorkSheetModel> workSheetModelList = workSheetService.getRunningWs();
 
-        if (workSheetModel == null) {
+        if (workSheetModelList == null || workSheetModelList.size() == 0) {
             return ResultTool.failedOnly("没有正在生产中的工单");
         }
+        WorkSheetModel workSheetModel = workSheetModelList.get(0);
         //第一步：首先判断已经被获取完
         QueryWrapper<DeviceIndividualModel> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, workSheetModel.getCode());
@@ -83,20 +82,7 @@ public class DeviceIndividualController {
             return ResultTool.failedOnly("没有设备信息");
         }
 
-        //第三步：更新获取状态
-        deviceIndividualModel.setStatus(1);
-
-        QueryWrapper<DeviceIndividualModel> updateWrapper = new QueryWrapper<>();
-        updateWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, workSheetModel.getCode());
-        if (!StringUtils.isEmpty(deviceIndividualModel.getSN1())) {
-            updateWrapper.eq(DeviceIndividualModel.PROPERTIES_SN1, deviceIndividualModel.getSN1());
-        }
-        if (!StringUtils.isEmpty(deviceIndividualModel.getSN2())) {
-            updateWrapper.eq(DeviceIndividualModel.PROPERTIES_SN2, deviceIndividualModel.getSN2());
-        }
-        deviceIndividualService.update(deviceIndividualModel, updateWrapper);
-
-        FlowProgressVo flowProgressVo = FlowProgressVo.builder().finished(finishedCount + 1).total(total).info(deviceIndividualModel).build();
+        FlowProgressVo flowProgressVo = FlowProgressVo.builder().finished(finishedCount).total(total).info(deviceIndividualModel).build();
         return ResultTool.successWithMap(flowProgressVo);
     }
 

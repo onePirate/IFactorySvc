@@ -14,6 +14,7 @@ import com.checkcode.entity.mpModel.EmployeeModel;
 import com.checkcode.entity.param.EmployeeVaildGroup;
 import com.checkcode.entity.pojo.EmployeePojo;
 import com.checkcode.entity.vo.EmployeeVo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/")
 public class EmployeeController {

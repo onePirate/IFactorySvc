@@ -19,14 +19,6 @@ public interface IIndividualFlowService extends IService<IndividualFlowModel> {
     IndividualFlowModel getDeviceLastRecord(String individualSn);
 
     /**
-     * 获得设备最后一条记录
-     *
-     * @param flowRecordParam
-     * @return
-     */
-    void recordFlow(FlowRecordParam flowRecordParam, boolean isReset);
-
-    /**
      * @param flowRecordParam
      * @return
      */
@@ -40,5 +32,27 @@ public interface IIndividualFlowService extends IService<IndividualFlowModel> {
      */
     List<IndividualFlowModel> getOperStatusBySnList(List<String> snList);
 
+    /**
+     * 装箱
+     *
+     * @param flowBoxUpRecordParam
+     * @return
+     */
     FlowProgressVo boxUp(FlowBoxUpRecordParam flowBoxUpRecordParam);
+
+    /**
+     * 当机码打印成功才去更新已经获取过设备个体为已获取状态
+     *
+     * @param flowRecordParam
+     * @return
+     */
+    FlowProgressVo mechinePrintSuccessUpdateIndividualStatusOne(FlowRecordParam flowRecordParam);
+
+    /**
+     * 重置到初始化的话需要更新设备个体状态为未获取过
+     *
+     * @param flowRecordParam
+     * @return
+     */
+    FlowProgressVo resetToInitializeNeedUpdateIndividualStatusZero(FlowRecordParam flowRecordParam);
 }
