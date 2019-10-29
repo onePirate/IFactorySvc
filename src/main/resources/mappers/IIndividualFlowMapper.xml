@@ -14,11 +14,14 @@
                     MAX(reset_times) AS max_times
                 FROM
                     tb_individual_flow
+                WHERE
+                    worksheet_code = #{wsCode}
                 GROUP BY
                     individual_sn
             ) t
         INNER JOIN tb_individual_flow d ON d.reset_times = t.max_times
         AND d.individual_sn = t.individual_sn
+        AND d.worksheet_code = #{wsCode}
         AND d.individual_sn IN
         <foreach collection="snList" item="item" index="index" open="(" separator="," close=")">
             #{item}
@@ -39,13 +42,14 @@
             FROM
                 tb_individual_flow
             where
+                worksheet_code = #{wsCode} AND
                 individual_sn IN
                 <foreach collection="snList" item="item" index="index" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             GROUP BY
                     individual_sn
-        ) t2 ON t1.individual_sn = t2.individual_sn AND t1.oper_time = t2.operTime
+        ) t2 ON t1.worksheet_code = #{wsCode} AND t1.individual_sn = t2.individual_sn AND t1.oper_time = t2.operTime
     </select>
 
 
