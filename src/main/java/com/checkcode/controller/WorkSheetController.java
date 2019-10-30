@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.metadata.Sheet;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.checkcode.common.CustomerException;
+import com.checkcode.common.FlowOrderConstant;
 import com.checkcode.common.StateEnum;
 import com.checkcode.common.entity.Result;
 import com.checkcode.common.tools.IdWorker;
@@ -15,10 +16,12 @@ import com.checkcode.entity.param.WorkSheetCreateParam;
 import com.checkcode.entity.param.WorkSheetGroup;
 import com.checkcode.entity.param.WorkSheetParam;
 import com.checkcode.entity.pojo.DeviceIndividualPojo;
+import com.checkcode.entity.vo.FlowProgressVo;
 import com.checkcode.entity.vo.WorkSheetSimpleVo;
 import com.checkcode.entity.vo.WorkSheetVo;
 import com.checkcode.service.ICustomerService;
 import com.checkcode.service.IDeviceIndividualService;
+import com.checkcode.service.IIndividualFlowService;
 import com.checkcode.service.IWorkSheetService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -34,10 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -47,6 +47,8 @@ public class WorkSheetController {
 
     @Autowired
     IDeviceIndividualService deviceIndividualService;
+    @Autowired
+    IIndividualFlowService individualFlowService;
     @Autowired
     IWorkSheetService workSheetService;
     @Autowired
@@ -195,6 +197,31 @@ public class WorkSheetController {
             workSheetVoList.add(workSheetVo);
         }
         return workSheetVoList;
+    }
+
+
+    /**
+     * 获取所有操作的完成进度
+     *
+     * @return
+     */
+    @PostMapping("/progress")
+    public Result wsProgress() {
+        List<WorkSheetModel> runningWsList = workSheetService.getRunningWs();
+        if (runningWsList == null || runningWsList.size() == 0) {
+            return ResultTool.failedOnly("没有正在生产中的工单");
+        }
+        WorkSheetModel workSheetModel = runningWsList.get(0);
+
+        //组装每个操作的状态
+        Map<String,FlowProgressVo> operProgressMap = new HashMap<>();
+
+        Set<String> keySet = FlowOrderConstant.flowMap.keySet();
+        for (String key:keySet) {
+            FlowProgressVo flowProgressVo = individualFlowService.getFlowProgressVo(workSheetModel.getCode(),key);
+            operProgressMap.put(key,flowProgressVo);
+        }
+        return ResultTool.successWithMap(operProgressMap);
     }
 
 

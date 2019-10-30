@@ -222,7 +222,8 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
      * @param oper
      * @return
      */
-    private FlowProgressVo getFlowProgressVo(String wsCode, String oper) {
+    @Override
+    public FlowProgressVo getFlowProgressVo(String wsCode, String oper) {
         QueryWrapper<DeviceIndividualModel> queryCusWsDeviceWrapper = new QueryWrapper<>();
         queryCusWsDeviceWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, wsCode);
         List<DeviceIndividualModel> cusWsDeviceList = deviceIndividualService.list(queryCusWsDeviceWrapper);

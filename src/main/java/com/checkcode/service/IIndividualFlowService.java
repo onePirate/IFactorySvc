@@ -55,4 +55,13 @@ public interface IIndividualFlowService extends IService<IndividualFlowModel> {
      * @return
      */
     FlowProgressVo resetToInitializeNeedUpdateIndividualStatusZero(FlowRecordParam flowRecordParam);
+
+    /**
+     * 获得某个操作的状态数据
+     *
+     * @param wsCode
+     * @param oper
+     * @return
+     */
+    FlowProgressVo getFlowProgressVo(String wsCode, String oper);
 }
