@@ -3,13 +3,13 @@ package com.checkcode.common;
 import com.checkcode.common.entity.Result;
 import com.checkcode.common.tools.ResultTool;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ConstraintViolationException;
-import java.sql.SQLIntegrityConstraintViolationException;
 
 /**
  * @Author: gaodw
@@ -48,9 +48,9 @@ public class GlobalExceptionHandler {
      * @param e SQLIntegrityConstraintViolationException
      * @return
      */
-    @ExceptionHandler(value = SQLIntegrityConstraintViolationException.class)
+    @ExceptionHandler(value = DuplicateKeyException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Result sqlIntegrityConstraintViolationExceptionHandler(SQLIntegrityConstraintViolationException e) {
+    public Result sqlIntegrityConstraintViolationExceptionHandler(DuplicateKeyException e) {
         log.error("server has error!",e);
         return ResultTool.failedOnly("员工账号重复");
     }
