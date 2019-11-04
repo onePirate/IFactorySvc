@@ -4,7 +4,6 @@ import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.metadata.Sheet;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.checkcode.common.CustomerException;
-import com.checkcode.common.FlowOrderConstant;
 import com.checkcode.common.StateEnum;
 import com.checkcode.common.entity.Result;
 import com.checkcode.common.tools.IdWorker;
@@ -123,7 +122,7 @@ public class WorkSheetController {
             }
             return deviceIndividualList;
         } catch (FileNotFoundException e) {
-            throw new CustomerException(StateEnum.FAIL);
+            throw new CustomerException(StateEnum.FAIL_EXCEL_DATA_EX);
         }
     }
 
@@ -214,12 +213,12 @@ public class WorkSheetController {
     @PostMapping("/progress")
     public Result wsProgress(@RequestBody WSBasePojo wsBasePojo) {
         String wsCode = wsBasePojo.getCode();
-        workSheetService.getWsByCode(wsCode);
-
+        WorkSheetModel workSheetModel = workSheetService.getWsByCode(wsCode);
+        Map<String,String> wsFlowMap = individualFlowService.getWsFlowMap(workSheetModel.getWsFlow());
         //组装每个操作的状态
         Map<String, FlowProgressVo> operProgressMap = new HashMap<>();
 
-        Set<String> keySet = FlowOrderConstant.flowMap.keySet();
+        Set<String> keySet = wsFlowMap.keySet();
         for (String key : keySet) {
             FlowProgressVo flowProgressVo = individualFlowService.getFlowProgressVo(wsCode, key);
             operProgressMap.put(key, flowProgressVo);
