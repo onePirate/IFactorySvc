@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, IndividualFlowModel> implements IIndividualFlowService {
@@ -42,19 +41,14 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
     /**
      * 获得最后操作状态
      *
-     * @param individualSn
+     * @param flowRecordParam
      * @return
      */
     @Override
-    public IndividualFlowModel getDeviceLastRecord(String individualSn) {
-        List<WorkSheetModel> runningWsList = workSheetService.getRunningWs();
-        if (runningWsList == null || runningWsList.size() == 0) {
-            throw new CustomerException("没有正在生产中的工单");
-        }
-        String wsCode = runningWsList.get(0).getCode();
+    public IndividualFlowModel getDeviceLastRecord(FlowRecordParam flowRecordParam) {
         QueryWrapper<IndividualFlowModel> queryDeviceLastRecordWrapper = new QueryWrapper<>();
-        queryDeviceLastRecordWrapper.eq(IndividualFlowModel.PROPERTIES_WORKSHEET_CODE, wsCode);
-        queryDeviceLastRecordWrapper.eq(IndividualFlowModel.PROPERTIES_INDIVIDUAL_SN, individualSn);
+        queryDeviceLastRecordWrapper.eq(IndividualFlowModel.PROPERTIES_WORKSHEET_CODE, flowRecordParam.getCode());
+        queryDeviceLastRecordWrapper.eq(IndividualFlowModel.PROPERTIES_INDIVIDUAL_SN, flowRecordParam.getIndividualSn());
         queryDeviceLastRecordWrapper.eq(IndividualFlowModel.PROPERTIES_STATUS, "1");
         queryDeviceLastRecordWrapper.orderByDesc(IndividualFlowModel.PROPERTIES_RESET_TIMES, IndividualFlowModel.PROPERTIES_OPER_TIME);
         return getOne(queryDeviceLastRecordWrapper);
@@ -66,11 +60,11 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
      *
      * @param flowRecordParam
      */
-    private void recordFlow(String wsCode, FlowRecordParam flowRecordParam, boolean isReset) {
+    private void recordFlow(FlowRecordParam flowRecordParam, boolean isReset) {
         IndividualFlowModel individualFlowModel = new IndividualFlowModel();
-        individualFlowModel.setWorksheetCode(wsCode);
         BeanUtils.copyProperties(flowRecordParam, individualFlowModel);
-        IndividualFlowModel flowModel = getDeviceLastRecord(individualFlowModel.getIndividualSn());
+        individualFlowModel.setWorksheetCode(flowRecordParam.getCode());
+        IndividualFlowModel flowModel = getDeviceLastRecord(flowRecordParam);
         if (isReset) {
             individualFlowModel.setResetTimes(flowModel.getResetTimes() + 1);
             individualFlowModel.setStatus("1");
@@ -89,27 +83,15 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
     @Override
     @Transactional
     public FlowProgressVo recordFlowAndGetProcess(FlowRecordParam flowRecordParam, boolean isReset) {
-        List<WorkSheetModel> runningWsList = workSheetService.getRunningWs();
-        if (runningWsList == null || runningWsList.size() == 0) {
-            throw new CustomerException("没有正在生产中的工单");
-        }
-        String wsCode = runningWsList.get(0).getCode();
-
-
         //去记录生产流程
-        recordFlow(wsCode, flowRecordParam, isReset);
+        recordFlow(flowRecordParam, isReset);
 
-        return getFlowProgressVo(wsCode, flowRecordParam.getOper());
+        return getFlowProgressVo(flowRecordParam.getCode(), flowRecordParam.getOper());
     }
 
 
     @Override
-    public List<IndividualFlowModel> getOperStatusBySnList(List<String> snList) {
-        List<WorkSheetModel> runningWsList = workSheetService.getRunningWs();
-        if (runningWsList == null || runningWsList.size() == 0) {
-            throw new CustomerException("没有正在生产中的工单");
-        }
-        String wsCode = runningWsList.get(0).getCode();
+    public List<IndividualFlowModel> getOperStatusBySnList(String wsCode, List<String> snList) {
         return baseMapper.getOperStatusBySnList(wsCode, snList);
     }
 
@@ -121,12 +103,10 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
     @Transactional
     public FlowProgressVo boxUp(FlowBoxUpRecordParam flowBoxUpRecordParam) {
         //第一步：创建一个箱子
-        List<WorkSheetModel> runningWsList = workSheetService.getRunningWs();
-        if (runningWsList == null || runningWsList.size() == 0) {
-            throw new CustomerException("没有正在生产中的工单");
-        }
-        String wsCode = runningWsList.get(0).getCode();
-        BoxModel boxModel = createBox(flowBoxUpRecordParam, wsCode);
+        String wsCode = flowBoxUpRecordParam.getCode();
+        WorkSheetModel workSheetModel = workSheetService.getWsByCode(wsCode);
+        Map<String, String> wsFlowMap = getWsFlowMap(workSheetModel.getWsFlow());
+        BoxModel boxModel = createBox(flowBoxUpRecordParam);
 
         //第二步：将所有sn的状态都修改为装箱状态
         List<String> snList = flowBoxUpRecordParam.getIndividualSnArr();
@@ -136,7 +116,7 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
         for (int i = 0; i < flowListSize; i++) {
             IndividualFlowModel individualFlowModel = individualFlowModelList.get(i);
             //需要校验设备的上个流程是否正确为（称重）
-            if (!individualFlowModel.getOper().equals(FlowOrderConstant.FIFTH)) {
+            if (!wsFlowMap.get(individualFlowModel.getOper()).equals(FlowOrderConstant.SIXTH)) {
                 throw new CustomerException("正在装箱的部分设备流程有误");
             }
             resetTimesMap.put(individualFlowModel.getIndividualSn(), individualFlowModel.getResetTimes());
@@ -170,20 +150,13 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
     @Override
     @Transactional
     public FlowProgressVo mechinePrintSuccessUpdateIndividualStatusOne(FlowRecordParam flowRecordParam) {
-        //查询当前正在运行的工单号
-        List<WorkSheetModel> workSheetModelList = workSheetService.getRunningWs();
-
-        if (workSheetModelList == null) {
-            throw new CustomerException("没有正在生产中的工单");
-        }
-        WorkSheetModel workSheetModel = workSheetModelList.get(0);
         QueryWrapper<DeviceIndividualModel> queryOneWrapper = new QueryWrapper<>();
-        queryOneWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, workSheetModel.getCode());
+        queryOneWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, flowRecordParam.getCode());
         queryOneWrapper.eq(DeviceIndividualModel.PROPERTIES_STATUS, 0);
         DeviceIndividualModel deviceIndividualModel = deviceIndividualService.getOne(queryOneWrapper);
         deviceIndividualModel.setStatus(1);
         QueryWrapper<DeviceIndividualModel> updateWrapper = new QueryWrapper<>();
-        updateWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, workSheetModel.getCode());
+        updateWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, flowRecordParam.getCode());
         if (!StringUtils.isEmpty(deviceIndividualModel.getSN1())) {
             updateWrapper.eq(DeviceIndividualModel.PROPERTIES_SN1, deviceIndividualModel.getSN1());
         }
@@ -197,14 +170,8 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
     @Override
     @Transactional
     public FlowProgressVo resetToInitializeNeedUpdateIndividualStatusZero(FlowRecordParam flowRecordParam) {
-        //查询当前正在运行的工单号
-        List<WorkSheetModel> workSheetModelList = workSheetService.getRunningWs();
-        if (workSheetModelList == null) {
-            throw new CustomerException("没有正在生产中的工单");
-        }
-        WorkSheetModel workSheetModel = workSheetModelList.get(0);
         QueryWrapper<DeviceIndividualModel> OneWrapper = new QueryWrapper<>();
-        OneWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, workSheetModel.getCode());
+        OneWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, flowRecordParam.getCode());
         OneWrapper.and(properties ->
                 properties.eq(DeviceIndividualModel.PROPERTIES_SN1, flowRecordParam.getIndividualSn())
                         .or().eq(DeviceIndividualModel.PROPERTIES_SN2, flowRecordParam.getIndividualSn()));
@@ -232,12 +199,7 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
         if (cusWsDeviceList == null || total == 0) {
             throw new CustomerException("生产中的工单没有设备信息");
         }
-        List<String> allSnList = cusWsDeviceList.stream().map(o -> {
-            if (o.getSN1() != null) {
-                return o.getSN1();
-            }
-            return o.getSN2();
-        }).collect(Collectors.toList());
+        List<String> allSnList = workSheetService.getWsSnList(cusWsDeviceList);
         List<IndividualFlowModel> flowModelList = baseMapper.getAnyOperFinishedData(allSnList, wsCode, oper, "1");
         int finishedCount = flowModelList.size();
 
@@ -246,22 +208,42 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
     }
 
     /**
+     * 获取工单流程的Map，key为当前流程，val为当前流程的下一流程
+     *
+     * @param wsFlow
+     * @return
+     */
+    @Override
+    public Map<String, String> getWsFlowMap(String wsFlow) {
+        String[] wsFlowArr = wsFlow.split(FlowOrderConstant.FLOW_SPLIT_CHAR);
+        int length = wsFlowArr.length;
+        Map<String, String> wsFlowMap = new HashMap<>();
+        for (int i = 0; i < length; i++) {
+            if (i == (length - 1)) {
+                wsFlowMap.put(wsFlowArr[i], "");
+            } else {
+                wsFlowMap.put(wsFlowArr[i], wsFlowArr[i + 1]);
+            }
+        }
+        return wsFlowMap;
+    }
+
+    /**
      * 创建一个箱子
      *
      * @param flowBoxUpRecordParam
-     * @param wsCode
      * @return
      */
-    private BoxModel createBox(FlowBoxUpRecordParam flowBoxUpRecordParam, String wsCode) {
+    private BoxModel createBox(FlowBoxUpRecordParam flowBoxUpRecordParam) {
         BoxModel boxModel = new BoxModel();
         BeanUtils.copyProperties(flowBoxUpRecordParam, boxModel);
-        if (StringUtils.isEmpty(boxModel.getCode())) {
+        if (StringUtils.isEmpty(flowBoxUpRecordParam.getBoxCode())) {
             boxModel.setCode("box" + IdWorker.getCodeByUUId());
         }
         if (StringUtils.isEmpty(boxModel.getName())) {
             boxModel.setName(boxModel.getCode());
         }
-        boxModel.setWorksheetNo(wsCode);
+        boxModel.setWorksheetNo(flowBoxUpRecordParam.getCode());
         boxDao.insert(boxModel);
         return boxModel;
     }

@@ -21,4 +21,8 @@ public class FlowOrderConstant {
     public static final String ZERO = "0_mechine_print";
     public static final String FIFTH = "5_weighing";
     public static final String SIXTH = "6_box_up";
+
+
+    public static final String FLOW_SPLIT_CHAR = ":";
+
 }

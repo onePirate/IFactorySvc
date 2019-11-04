@@ -3,9 +3,13 @@ package com.checkcode.entity.param;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 public class WorkSheetCreateParam {
+
+    private String code;
 
     @NotEmpty(message = "工单名称不能为空")
     private String name;
@@ -33,6 +37,11 @@ public class WorkSheetCreateParam {
     private String thickness;
     private String extendInfo;
 
+    /**
+     * 用于记录工单的流程信息
+     */
+    @NotNull(message = "工单流程不能为空")
+    private List<String> wsFlowList;
     /**
      * 用于解析Excel中的设备信息
      */

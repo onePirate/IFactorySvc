@@ -5,8 +5,8 @@ import com.checkcode.common.entity.Result;
 import com.checkcode.common.tools.ResultTool;
 import com.checkcode.entity.mpModel.DeviceIndividualModel;
 import com.checkcode.entity.mpModel.IndividualFlowModel;
-import com.checkcode.entity.mpModel.WorkSheetModel;
 import com.checkcode.entity.pojo.SearchPojo;
+import com.checkcode.entity.pojo.WSBasePojo;
 import com.checkcode.entity.vo.DeviceIndividualDetailVo;
 import com.checkcode.entity.vo.DeviceIndividualVo;
 import com.checkcode.entity.vo.DeviceInfoComposeVo;
@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -49,17 +48,13 @@ public class DeviceIndividualController {
      * @return
      */
     @PostMapping("/one")
-    public Result getOne() {
-        //查询当前正在运行的工单号
-        List<WorkSheetModel> workSheetModelList = workSheetService.getRunningWs();
-
-        if (workSheetModelList == null || workSheetModelList.size() == 0) {
-            return ResultTool.failedOnly("没有正在生产中的工单");
-        }
-        WorkSheetModel workSheetModel = workSheetModelList.get(0);
+    public Result getOne(@RequestBody WSBasePojo WSBasePojo, BindingResult bindingResult) {
+        ResultTool.valid(bindingResult);
+        String wsCode = WSBasePojo.getCode();
+        workSheetService.getWsByCode(wsCode);
         //第一步：首先判断已经被获取完
         QueryWrapper<DeviceIndividualModel> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, workSheetModel.getCode());
+        queryWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, wsCode);
         int total = deviceIndividualService.count(queryWrapper);
         if (total == 0) {
             return ResultTool.failedOnly("没有设备信息");
@@ -75,13 +70,13 @@ public class DeviceIndividualController {
 
         //第二步：查询一个还没有被获取过的设备
         QueryWrapper<DeviceIndividualModel> queryOneWrapper = new QueryWrapper<>();
-        queryOneWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, workSheetModel.getCode());
+        queryOneWrapper.eq(DeviceIndividualModel.PROPERTIES_WORKSHEET_CODE, wsCode);
         queryOneWrapper.eq(DeviceIndividualModel.PROPERTIES_STATUS, 0);
         DeviceIndividualModel deviceIndividualModel = deviceIndividualService.getOne(queryOneWrapper);
         if (deviceIndividualModel == null) {
             return ResultTool.failedOnly("没有设备信息");
         }
-
+        //finishedCount 不加1，因为要机码打印状态完成才能加1
         FlowProgressVo flowProgressVo = FlowProgressVo.builder().finished(finishedCount).total(total).info(deviceIndividualModel).build();
         return ResultTool.successWithMap(flowProgressVo);
     }
@@ -98,18 +93,19 @@ public class DeviceIndividualController {
     public Result getDeviceIndividualInfoBySnOrImei(@Valid @RequestBody SearchPojo searchPojo, BindingResult bindingResult) {
         ResultTool.valid(bindingResult);
 
-        List<DeviceIndividualModel> deviceIndividualModelList = deviceIndividualService.getIndividualListByCondition(searchPojo.getSearchVal());
+        /**
+         * 判断运行中的工单是否存在，没有异常则说明存在
+         */
+        String wsCode = searchPojo.getCode();
+        workSheetService.getWsByCode(wsCode);
 
-        List<String> snList = deviceIndividualModelList.stream().map(o -> {
-            if (o.getSN1() != null) {
-                return o.getSN1();
-            }
-            return o.getSN2();
-        }).collect(Collectors.toList());
+        List<DeviceIndividualModel> deviceIndividualModelList = deviceIndividualService.getIndividualListByCondition(searchPojo);
+
+        List<String> snList = workSheetService.getWsSnList(deviceIndividualModelList);
 
         List<DeviceInfoComposeVo> deviceInfoComposeVos = new ArrayList<>();
         if (snList != null && snList.size() > 0) {
-            List<IndividualFlowModel> flowModelList = individualFlowService.getOperStatusBySnList(snList);
+            List<IndividualFlowModel> flowModelList = individualFlowService.getOperStatusBySnList(wsCode, snList);
             Map<String, IndividualFlowModel> flowModelMap = new HashMap<>();
             int flowListSize = flowModelList.size();
             for (int i = 0; i < flowListSize; i++) {
@@ -125,17 +121,10 @@ public class DeviceIndividualController {
                 DeviceIndividualDetailVo deviceIndividualDetailVo = new DeviceIndividualDetailVo();
                 deviceIndividualDetailVo.setWorksheetCode(sourceModel.getWorksheetCode());
                 deviceIndividualDetailVo.setWeight(sourceModel.getWeight());
-                if (!StringUtils.isEmpty(sourceModel.getSN1())) {
-                    if (flowModelMap.get(sourceModel.getSN1()) != null) {
-                        deviceIndividualDetailVo.setOper(flowModelMap.get(sourceModel.getSN1()).getOper());
-                        deviceIndividualDetailVo.setStatus(flowModelMap.get(sourceModel.getSN1()).getStatus());
-                    }
-                } else {
-                    if (flowModelMap.get(sourceModel.getSN2()) != null) {
-                        deviceIndividualDetailVo.setOper(flowModelMap.get(sourceModel.getSN2()).getOper());
-                        deviceIndividualDetailVo.setStatus(flowModelMap.get(sourceModel.getSN2()).getStatus());
-                    }
-                }
+
+                String keySn = StringUtils.isEmpty(sourceModel.getSN1()) ? sourceModel.getSN2() : sourceModel.getSN1();
+                deviceIndividualDetailVo.setOper(flowModelMap.get(keySn).getOper());
+                deviceIndividualDetailVo.setStatus(flowModelMap.get(keySn).getStatus());
 
                 DeviceInfoComposeVo deviceInfoComposeVo = DeviceInfoComposeVo.builder().deviceInfo(deviceIndividualVo).deviceOtherInfo(deviceIndividualDetailVo).build();
                 deviceInfoComposeVos.add(deviceInfoComposeVo);

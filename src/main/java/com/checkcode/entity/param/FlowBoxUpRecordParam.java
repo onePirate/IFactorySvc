@@ -1,5 +1,6 @@
 package com.checkcode.entity.param;
 
+import com.checkcode.entity.pojo.WSBasePojo;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
@@ -7,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
-public class FlowBoxUpRecordParam {
+public class FlowBoxUpRecordParam extends WSBasePojo {
 
 
     @NotNull(message = "设备不能为空")
@@ -16,7 +17,7 @@ public class FlowBoxUpRecordParam {
     @NotEmpty(message = "员工号不能为空")
     private String employeeNo;
 
-    private String code;
+    private String boxCode;
 
     private String name;
 

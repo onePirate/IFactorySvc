@@ -16,6 +16,7 @@ import com.checkcode.entity.param.WorkSheetCreateParam;
 import com.checkcode.entity.param.WorkSheetGroup;
 import com.checkcode.entity.param.WorkSheetParam;
 import com.checkcode.entity.pojo.DeviceIndividualPojo;
+import com.checkcode.entity.pojo.WSBasePojo;
 import com.checkcode.entity.vo.FlowProgressVo;
 import com.checkcode.entity.vo.WorkSheetSimpleVo;
 import com.checkcode.entity.vo.WorkSheetVo;
@@ -64,6 +65,10 @@ public class WorkSheetController {
     @PostMapping("/create")
     public Result createWorkSheet(@Valid @RequestBody WorkSheetCreateParam workSheetCreateParam, BindingResult bindingResult) {
         ResultTool.valid(bindingResult);
+        if (workSheetCreateParam.getWsFlowList().size() == 0) {
+            return ResultTool.failedOnly("工单流程不能为空");
+        }
+
         String code = "ws" + IdWorker.getCodeByUUId();
         //首先解析Excel数据是否正确
         //如果解析数据有错，则提示Excel数据有错
@@ -76,7 +81,8 @@ public class WorkSheetController {
         //如果解析都正确，则插入数据到tb_device_individual中
         //如果插入报错，直接返回创建工单失败
         try {
-            workSheetService.createWorkSheet(deviceIndividualList, code, workSheetCreateParam);
+            workSheetCreateParam.setCode(code);
+            workSheetService.createWorkSheet(deviceIndividualList, workSheetCreateParam);
         } catch (Exception ex) {
             log.error("create worksheet has error", ex);
             throw new CustomerException("创建工单失败");
@@ -95,21 +101,21 @@ public class WorkSheetController {
             for (Object obj : readList) {
                 DeviceIndividualPojo deviceIndividualPojo = (DeviceIndividualPojo) obj;
                 if (StringUtils.isEmpty(deviceIndividualPojo.getSN1())
-                    && StringUtils.isEmpty(deviceIndividualPojo.getSN2())
-                    && StringUtils.isEmpty(deviceIndividualPojo.getIMEI1())
-                    && StringUtils.isEmpty(deviceIndividualPojo.getIMEI2())
-                    && StringUtils.isEmpty(deviceIndividualPojo.getIMEI3())
-                    && StringUtils.isEmpty(deviceIndividualPojo.getIMEI4())
-                    && StringUtils.isEmpty(deviceIndividualPojo.getBTADDRESS())
-                    && StringUtils.isEmpty(deviceIndividualPojo.getETHERNNETMACADDRESS())
-                    && StringUtils.isEmpty(deviceIndividualPojo.getMEID())
-                    && StringUtils.isEmpty(deviceIndividualPojo.getESN())
-                    && StringUtils.isEmpty(deviceIndividualPojo.getEXTRA1())
-                    && StringUtils.isEmpty(deviceIndividualPojo.getEXTRA2())
-                    && StringUtils.isEmpty(deviceIndividualPojo.getEXTRA3())) {
+                        && StringUtils.isEmpty(deviceIndividualPojo.getSN2())
+                        && StringUtils.isEmpty(deviceIndividualPojo.getIMEI1())
+                        && StringUtils.isEmpty(deviceIndividualPojo.getIMEI2())
+                        && StringUtils.isEmpty(deviceIndividualPojo.getIMEI3())
+                        && StringUtils.isEmpty(deviceIndividualPojo.getIMEI4())
+                        && StringUtils.isEmpty(deviceIndividualPojo.getBTADDRESS())
+                        && StringUtils.isEmpty(deviceIndividualPojo.getETHERNNETMACADDRESS())
+                        && StringUtils.isEmpty(deviceIndividualPojo.getMEID())
+                        && StringUtils.isEmpty(deviceIndividualPojo.getESN())
+                        && StringUtils.isEmpty(deviceIndividualPojo.getEXTRA1())
+                        && StringUtils.isEmpty(deviceIndividualPojo.getEXTRA2())
+                        && StringUtils.isEmpty(deviceIndividualPojo.getEXTRA3())) {
                     continue;
                 }
-                if (StringUtils.isEmpty(deviceIndividualPojo.getSN1()) && StringUtils.isEmpty(deviceIndividualPojo.getSN2())){
+                if (StringUtils.isEmpty(deviceIndividualPojo.getSN1()) && StringUtils.isEmpty(deviceIndividualPojo.getSN2())) {
                     throw new CustomerException(StateEnum.FAIL_EXCEL_DATA_EX);
                 }
                 deviceIndividualPojo.setWorksheetCode(code);
@@ -142,7 +148,7 @@ public class WorkSheetController {
                 List<WorkSheetModel> readyWsList = workSheetService.list(queryReadyWrapper);
                 runningWsList.addAll(readyWsList);
 
-                if (runningWsList != null && runningWsList.size()>0) {
+                if (runningWsList != null && runningWsList.size() > 0) {
                     workSheetVoList = getWsVoDetailList(runningWsList);
                 }
 
@@ -157,7 +163,7 @@ public class WorkSheetController {
                 queryWrapper.eq(WorkSheetModel.STATUS, workSheetParam.getStatus());
             }
             List<WorkSheetModel> queryWsList = workSheetService.list(queryWrapper);
-            if (queryWsList != null && queryWsList.size()>0) {
+            if (queryWsList != null && queryWsList.size() > 0) {
                 workSheetVoList = getWsVoDetailList(queryWsList);
             }
             return ResultTool.successWithMap(workSheetVoList);
@@ -168,7 +174,7 @@ public class WorkSheetController {
     /**
      * 获取对应的客户信息
      */
-    private List<WorkSheetVo> getWsVoDetailList(List<WorkSheetModel> queryWsList){
+    private List<WorkSheetVo> getWsVoDetailList(List<WorkSheetModel> queryWsList) {
         List<String> customerNos = queryWsList.stream().map(WorkSheetModel::getCustomerNo).collect(Collectors.toList());
         QueryWrapper<CustomerModel> queryCustomerWrapper = new QueryWrapper<>();
         queryCustomerWrapper.in(CustomerModel.PROPERTIES_CUSTOMER_NO, customerNos);
@@ -181,11 +187,11 @@ public class WorkSheetController {
 
         //组装对应的客户信息
         List<WorkSheetVo> workSheetVoList = new ArrayList<>();
-        int wsSize =  queryWsList.size();
+        int wsSize = queryWsList.size();
         for (int i = 0; i < wsSize; i++) {
             WorkSheetModel workSheetModel = queryWsList.get(i);
             WorkSheetVo workSheetVo = new WorkSheetVo();
-            BeanUtils.copyProperties(workSheetModel,workSheetVo);
+            BeanUtils.copyProperties(workSheetModel, workSheetVo);
             CustomerModel customerModel = cusMap.get(workSheetModel.getCustomerNo());
             if (customerModel != null) {
                 workSheetVo.setCusName(customerModel.getName());
@@ -206,20 +212,17 @@ public class WorkSheetController {
      * @return
      */
     @PostMapping("/progress")
-    public Result wsProgress() {
-        List<WorkSheetModel> runningWsList = workSheetService.getRunningWs();
-        if (runningWsList == null || runningWsList.size() == 0) {
-            return ResultTool.failedOnly("没有正在生产中的工单");
-        }
-        WorkSheetModel workSheetModel = runningWsList.get(0);
+    public Result wsProgress(@RequestBody WSBasePojo wsBasePojo) {
+        String wsCode = wsBasePojo.getCode();
+        workSheetService.getWsByCode(wsCode);
 
         //组装每个操作的状态
-        Map<String,FlowProgressVo> operProgressMap = new HashMap<>();
+        Map<String, FlowProgressVo> operProgressMap = new HashMap<>();
 
         Set<String> keySet = FlowOrderConstant.flowMap.keySet();
-        for (String key:keySet) {
-            FlowProgressVo flowProgressVo = individualFlowService.getFlowProgressVo(workSheetModel.getCode(),key);
-            operProgressMap.put(key,flowProgressVo);
+        for (String key : keySet) {
+            FlowProgressVo flowProgressVo = individualFlowService.getFlowProgressVo(wsCode, key);
+            operProgressMap.put(key, flowProgressVo);
         }
         return ResultTool.successWithMap(operProgressMap);
     }
@@ -228,11 +231,10 @@ public class WorkSheetController {
     @PostMapping("/oper")
     public Result operWorkSheet(@Validated(WorkSheetGroup.LoginGroup.class) @RequestBody WorkSheetParam workSheetParam, BindingResult bindingResult) {
         ResultTool.valid(bindingResult);
-        //todo 现在是简单实现，后续考虑不可逆转流程
+        //现在是简单实现，后续考虑不可逆转流程
         workSheetService.updateRunningWs(workSheetParam);
         return ResultTool.success();
     }
-
 
 
 }

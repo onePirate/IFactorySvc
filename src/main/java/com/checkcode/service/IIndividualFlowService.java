@@ -7,16 +7,17 @@ import com.checkcode.entity.param.FlowRecordParam;
 import com.checkcode.entity.vo.FlowProgressVo;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IIndividualFlowService extends IService<IndividualFlowModel> {
 
     /**
      * 获得设备最后一条记录
      *
-     * @param individualSn
+     * @param flowRecordParam
      * @return
      */
-    IndividualFlowModel getDeviceLastRecord(String individualSn);
+    IndividualFlowModel getDeviceLastRecord(FlowRecordParam flowRecordParam);
 
     /**
      * @param flowRecordParam
@@ -27,10 +28,11 @@ public interface IIndividualFlowService extends IService<IndividualFlowModel> {
     /**
      * 通过sn获取每一个最新操作流程状态
      *
+     * @param wsCode
      * @param snList
      * @return
      */
-    List<IndividualFlowModel> getOperStatusBySnList(List<String> snList);
+    List<IndividualFlowModel> getOperStatusBySnList(String wsCode, List<String> snList);
 
     /**
      * 装箱
@@ -64,4 +66,12 @@ public interface IIndividualFlowService extends IService<IndividualFlowModel> {
      * @return
      */
     FlowProgressVo getFlowProgressVo(String wsCode, String oper);
+
+    /**
+     * 获取工单流程的Map，key为当前流程，val为当前流程的下一流程
+     *
+     * @param wsFlow
+     * @return
+     */
+    Map<String, String> getWsFlowMap(String wsFlow);
 }

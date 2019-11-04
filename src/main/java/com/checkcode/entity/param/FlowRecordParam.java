@@ -1,11 +1,12 @@
 package com.checkcode.entity.param;
 
+import com.checkcode.entity.pojo.WSBasePojo;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
 
 @Data
-public class FlowRecordParam {
+public class FlowRecordParam extends WSBasePojo {
 
 
     @NotEmpty(message = "SN不能为空")

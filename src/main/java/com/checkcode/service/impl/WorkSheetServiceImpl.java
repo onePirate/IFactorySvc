@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class WorkSheetServiceImpl extends ServiceImpl<IWorkSheetDao, WorkSheetModel> implements IWorkSheetService {
@@ -37,19 +38,22 @@ public class WorkSheetServiceImpl extends ServiceImpl<IWorkSheetDao, WorkSheetMo
      * 创建工单
      *
      * @param deviceIndividualList
-     * @param code
      * @param workSheetCreateParam
      * @throws ParseException
      */
     @Override
     @Transactional
-    public void createWorkSheet(List<DeviceIndividualModel> deviceIndividualList, String code, WorkSheetCreateParam workSheetCreateParam){
+    public void createWorkSheet(List<DeviceIndividualModel> deviceIndividualList, WorkSheetCreateParam workSheetCreateParam){
         deviceIndividualService.saveBatch(deviceIndividualList);
         WorkSheetModel workSheetModel = new WorkSheetModel();
         BeanUtils.copyProperties(workSheetCreateParam, workSheetModel);
-        workSheetModel.setCode(code);
         workSheetModel.setStatus(0);
-        workSheetModel.setDeadline(workSheetCreateParam.getDeadline());
+
+        /**数据库当中用“:”拼接流程*/
+        List<String> flowList = workSheetCreateParam.getWsFlowList();
+        flowList.add(FlowOrderConstant.INITIALIZE);
+        List<String> newFlowList = flowList.stream().sorted().collect(Collectors.toList());
+        workSheetModel.setWsFlow(String.join(FlowOrderConstant.FLOW_SPLIT_CHAR, newFlowList));
         save(workSheetModel);
 
         //以下是组装设备流程初始化数据
@@ -80,17 +84,6 @@ public class WorkSheetServiceImpl extends ServiceImpl<IWorkSheetDao, WorkSheetMo
     @Override
     @Transactional
     public void updateRunningWs(WorkSheetParam workSheetParam){
-        //如果有运行中的，先暂停再更新当前工单为运行中
-        if (workSheetParam.getStatus() == 1) {
-            QueryWrapper<WorkSheetModel> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq(WorkSheetModel.STATUS, 1);
-            WorkSheetModel workSheetModel = getOne(queryWrapper);
-            if (workSheetModel != null) {
-                workSheetModel.setStatus(2);
-                updateById(workSheetModel);
-            }
-        }
-
         //需要更新的model
         QueryWrapper<WorkSheetModel> queryUpdateWrapper = new QueryWrapper<>();
         queryUpdateWrapper.eq(WorkSheetModel.CODE, workSheetParam.getCode());
@@ -113,6 +106,31 @@ public class WorkSheetServiceImpl extends ServiceImpl<IWorkSheetDao, WorkSheetMo
         queryWrapper.eq(WorkSheetModel.STATUS, 1);
         List<WorkSheetModel> runningWsList = list(queryWrapper);
         return runningWsList;
+    }
+
+
+    @Override
+    public WorkSheetModel getWsByCode(String wsCode){
+        QueryWrapper<WorkSheetModel> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq(WorkSheetModel.CODE, wsCode);
+        queryWrapper.eq(WorkSheetModel.STATUS, 1);
+        WorkSheetModel workSheetModel = getOne(queryWrapper);
+        if (workSheetModel == null) {
+            throw new CustomerException("工单不存在，或者工单不在生产中");
+        }
+        return workSheetModel;
+    }
+
+
+    @Override
+    public List<String> getWsSnList(List<DeviceIndividualModel> deviceIndividualModelList){
+        List<String> snList = deviceIndividualModelList.stream().map(o -> {
+            if (o.getSN1() != null) {
+                return o.getSN1();
+            }
+            return o.getSN2();
+        }).collect(Collectors.toList());
+        return snList;
     }
 
 }
