@@ -4,6 +4,9 @@ server:
 spring:
   profiles:
     active: dev
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
 
 #单位：毫秒
 token:

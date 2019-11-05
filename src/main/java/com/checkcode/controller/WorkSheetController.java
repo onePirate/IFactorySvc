@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.metadata.Sheet;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.checkcode.common.CustomerException;
+import com.checkcode.common.FlowOrderConstant;
 import com.checkcode.common.StateEnum;
 import com.checkcode.common.entity.Result;
 import com.checkcode.common.tools.IdWorker;
@@ -191,6 +192,8 @@ public class WorkSheetController {
             WorkSheetModel workSheetModel = queryWsList.get(i);
             WorkSheetVo workSheetVo = new WorkSheetVo();
             BeanUtils.copyProperties(workSheetModel, workSheetVo);
+            workSheetVo.setWsFlowList(Arrays.asList(workSheetModel.getWsFlow().split(FlowOrderConstant.FLOW_SPLIT_CHAR)));
+
             CustomerModel customerModel = cusMap.get(workSheetModel.getCustomerNo());
             if (customerModel != null) {
                 workSheetVo.setCusName(customerModel.getName());

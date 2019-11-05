@@ -2,6 +2,8 @@ package com.checkcode.entity.vo;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class WorkSheetVo {
 
@@ -22,6 +24,7 @@ public class WorkSheetVo {
     private String deviceSize;
     private String thickness;
     private String extendInfo;
+    private List<String> wsFlowList;
     private String cusCompany;
     private String cusName;
     private String cusPhone;
