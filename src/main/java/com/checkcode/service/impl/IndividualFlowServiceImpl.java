@@ -105,10 +105,10 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
         //第一步：创建一个箱子
         String wsCode = flowBoxUpRecordParam.getCode();
         WorkSheetModel workSheetModel = workSheetService.getWsByCode(wsCode);
-        Map<String, String> wsFlowMap = getWsFlowMap(workSheetModel.getWsFlow());
         BoxModel boxModel = createBox(flowBoxUpRecordParam);
 
         //第二步：将所有sn的状态都修改为装箱状态
+        Map<String, String> wsFlowMap = getWsFlowMap(workSheetModel.getWsFlow());
         List<String> snList = flowBoxUpRecordParam.getIndividualSnArr();
         List<IndividualFlowModel> individualFlowModelList = baseMapper.getOperStatusBySnList(wsCode, snList);
         Map<String, Integer> resetTimesMap = new HashMap<>();
@@ -237,9 +237,7 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
     private BoxModel createBox(FlowBoxUpRecordParam flowBoxUpRecordParam) {
         BoxModel boxModel = new BoxModel();
         BeanUtils.copyProperties(flowBoxUpRecordParam, boxModel);
-        if (StringUtils.isEmpty(flowBoxUpRecordParam.getBoxCode())) {
-            boxModel.setCode("box" + IdWorker.getCodeByUUId());
-        }
+        boxModel.setCode("box" + IdWorker.getCodeByUUId());
         if (StringUtils.isEmpty(boxModel.getName())) {
             boxModel.setName(boxModel.getCode());
         }

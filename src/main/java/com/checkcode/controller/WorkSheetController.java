@@ -211,7 +211,8 @@ public class WorkSheetController {
      * @return
      */
     @PostMapping("/progress")
-    public Result wsProgress(@RequestBody WSBasePojo wsBasePojo) {
+    public Result wsProgress(@RequestBody WSBasePojo wsBasePojo, BindingResult bindingResult) {
+        ResultTool.valid(bindingResult);
         String wsCode = wsBasePojo.getCode();
         WorkSheetModel workSheetModel = workSheetService.getWsByCode(wsCode);
         Map<String,String> wsFlowMap = individualFlowService.getWsFlowMap(workSheetModel.getWsFlow());

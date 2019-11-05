@@ -20,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,7 +53,7 @@ public class DeviceIndividualFlowController {
         String wsCode = flowRecordParam.getCode();
         WorkSheetModel workSheetModel = workSheetService.getWsByCode(wsCode);
 
-        if (BOX_UP.equals(FlowOrderConstant.flowMap.get(flowRecordParam.getOper()))) {
+        if (FlowOrderConstant.SIXTH.equals(flowRecordParam.getOper())) {
             //如果当前流程是最后一个流程，返回错误提示，装箱流程不在这个接口中操作
             String errMsg = "装箱不在这里操作";
             log.warn(flowRecordParam.getIndividualSn() + "->" + errMsg);
@@ -92,11 +91,7 @@ public class DeviceIndividualFlowController {
 
     @PostMapping("/boxUp")
     public Result recordDeviceBoxUpFlow(@Valid @RequestBody FlowBoxUpRecordParam flowBoxUpRecordParam, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            for (ObjectError error : bindingResult.getAllErrors()) {
-                return ResultTool.failedOnly(error.getDefaultMessage());
-            }
-        }
+        ResultTool.valid(bindingResult);
 
         return ResultTool.successWithMap(individualFlowService.boxUp(flowBoxUpRecordParam));
     }
@@ -156,12 +151,12 @@ public class DeviceIndividualFlowController {
         ResultTool.valid(bindingResult);
         WorkSheetModel workSheetModel = workSheetService.getWsByCode(flowRecordParam.getCode());
         Map<String,String> wsFlowMap = individualFlowService.getWsFlowMap(workSheetModel.getWsFlow());
-        IndividualFlowModel individualFlowModel = individualFlowService.getDeviceLastRecord(flowRecordParam);
-        int lastFlowNum = Integer.valueOf(individualFlowModel.getOper().split("_")[0]);
-        int inputFlowNum = Integer.valueOf(flowRecordParam.getOper().split("_")[0]);
         if (wsFlowMap.get(flowRecordParam.getOper()) == null) {
             throw new CustomerException("工单不包含当前重置流程");
         }
+        IndividualFlowModel individualFlowModel = individualFlowService.getDeviceLastRecord(flowRecordParam);
+        int lastFlowNum = Integer.valueOf(individualFlowModel.getOper().split("_")[0]);
+        int inputFlowNum = Integer.valueOf(flowRecordParam.getOper().split("_")[0]);
         if (inputFlowNum > lastFlowNum) {
             throw new CustomerException("请保证重置流程正确");
         }
