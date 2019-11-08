@@ -21,11 +21,14 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
 
     //目标方法执行之前
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception{
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!tokenSwitch) {
             return true;
         }
         String token = request.getHeader("token");
+        if (token == null) {
+            token = request.getParameter("token");
+        }
         if (token == null) {
             throw new CustomerException(StateEnum.USER_NOT_LOGIN);
         }
@@ -35,7 +38,7 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
         }
         long curTime = System.currentTimeMillis();
         //如果超过指定token有限期，则退出登录
-        if ((curTime-tokenModel.getLoginTime())>timeout){
+        if ((curTime - tokenModel.getLoginTime()) > timeout) {
             TokenTool.removeToken(token);
             throw new CustomerException(StateEnum.USER_LOGIN_TIMEOUT);
         }
@@ -49,7 +52,7 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception{
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
 
     }
 }

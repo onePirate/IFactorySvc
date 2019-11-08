@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/js/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="../../layui/js/layui.js"></script>
+    <style>
+        div.costs-uploadfile-div {
+            position: relative;
+        }
+
+        div.costs-uploadfile-div #textfield {
+            width: 80%;
+            display: inline-block;
+        }
+
+        div.costs-uploadfile-div #fileField {
+            margin-left: 80%;
+            width: 15%;
+            height: 38px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            filter: alpha(opacity:0);
+            opacity: 0;
+        }
+
+        div.costs-uploadfile-div .allBtn {
+            padding: 0;
+            margin: 0;
+            height: 15%;
+            line-height: 38px;
+            width: 160px;
+            background-color: #009688;
+            border: none;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+<div style="height: 50px"></div>
+<div class="layui-form" style="margin: auto;width: 90%;">
+    <table class="layui-table">
+        <colgroup>
+            <col width="100">
+            <col width="200">
+            <col width="100">
+            <col width="200">
+            <col width="100">
+            <col width="200">
+            <col width="100">
+            <col width="200">
+        </colgroup>
+        <thead>
+        <tr>
+            <th colspan="8" style="text-align: center;font-size: 22px;">工单创建</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <form id="uploadFile" action="http://127.0.0.1:8989/uploadFile" METHOD="post" enctype="multipart/form-data">
+                <td>设备文件</td>
+                <td colspan="6">
+                    <div class="costs-uploadfile-div">
+                        <input type="file" name="fileName" id="fileField"
+                               onchange="document.getElementById('textfield').value=this.value"/>
+                        <input type='text' id="textfield" lay-verify="email" autocomplete="off" class="layui-input"/>
+                        <input type='hidden' id="successFilePath" value=""/>
+                        <button class="allBtn costs-marl15">浏览</button>
+                    </div>
+                </td>
+                <td>
+                    <div class="layui-upload">
+                        <button type="button" class="layui-btn" id="upload">开始上传</button>
+                    </div>
+                </td>
+            </form>
+        </tr>
+        <tr>
+            <td>工单名称</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="name" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+            </td>
+            <td>截止日期</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="deadline" lay-verify="date" placeholder="yyyy-MM-dd HH:mm:ss"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </td>
+            <td>平台</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="platform" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+            </td>
+            <td>设备类型</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="deviceType" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>型号</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="typeCode" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+            </td>
+            <td>品牌</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="brandName" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+            </td>
+            <td>颜色</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="color" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+            </td>
+            <td>尺寸</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="deviceSize" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>毛重</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="fullWeight" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+            </td>
+            <td>净重</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="trueWeight" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+            </td>
+            <td>厚度</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="thickness" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+            </td>
+            <td>备注</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="extendInfo" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>客户姓名</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="cusName" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+            </td>
+            <td>客户电话</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="phone" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+            </td>
+            <td>公司名称</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="company" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+            </td>
+            <td>客户地址</td>
+            <td>
+                <div class="layui-input-inline" style="display: block">
+                    <input type="text" id="address" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>工单流程</td>
+            <td colspan="4">
+                <div class="layui-form-item" pane="">
+                    <div class="layui-input-block">
+                        <input type="checkbox" value="0_mechine_print" name="flow" lay-skin="primary" title="机码打印">
+                        <input type="checkbox" value="1_write_code" name="flow" lay-skin="primary" title="写码">
+                        <input type="checkbox" value="2_check_code" name="flow" lay-skin="primary" title="验码">
+                        <input type="checkbox" value="3_print_code" name="flow" lay-skin="primary" title="盒码打印">
+                        <input type="checkbox" value="4_three_code_to_one" name="flow" lay-skin="primary" title="三码合一">
+                        <input type="checkbox" value="5_weighing" name="flow" lay-skin="primary" title="称重">
+                        <input type="checkbox" value="6_box_up" name="flow" lay-skin="primary" title="装箱">
+                    </div>
+                </div>
+            </td>
+            <td colspan="3">
+                <div class="layui-upload">
+                    <button type="button" class="layui-btn" id="createWsButton">创建工单</button>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script>
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        //日期时间选择器
+        laydate.render({
+            elem: '#deadline'
+            , type: 'datetime'
+        });
+    });
+
+    layui.use('form', function () {
+        var form = layui.form; //只有执行了这一步，部分表单元素才会自动修饰成功
+
+        //……
+
+        //但是，如果你的HTML是动态生成的，自动渲染就会失效
+        //因此你需要在相应的地方，执行下述方法来进行渲染
+        form.render();
+    });
+
+    $("#createWsButton").click(function () {
+        var flowList = [];
+        $('input:checkbox[name="flow"]:checked').each(function () {
+            flowList.push($(this).val());
+        });
+        var employeeNo = window.parent.document.getElementById("empNo").textContent;
+        var body = {
+            "name": $("#name").val(),
+            "deadline": $("#deadline").val(),
+            "employeeNo": employeeNo,
+            "customerNo": "",
+            "fileUrl": $("#successFilePath").val(),
+            "platform": $("#platform").val(),
+            "deviceType": $("#deviceType").val(),
+            "typeCode": $("#typeCode").val(),
+            "brandName": $("#brandName").val(),
+            "color": $("#color").val(),
+            "fullWeight": $("#fullWeight").val(),
+            "trueWeight": $("#trueWeight").val(),
+            "deviceSize": $("#deviceSize").val(),
+            "thickness": $("#thickness").val(),
+            "extendInfo": $("#extendInfo").val(),
+            "wsFlowList": flowList,
+            "cusName": $("#cusName").val(),
+            "phone": $("#phone").val(),
+            "company": $("#company").val(),
+            "address": $("#address").val(),
+            "icon": ''
+        };
+        $.ajax({
+            //几个参数需要注意一下
+            type: "POST",//方法类型
+            url: "/web/ws/create",//url
+            data: JSON.stringify(body),
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                console.log(result);
+                if (result.code == 200) {
+                    window.parent.document.getElementById("body").src = "/wsList?token=" + window.parent.document.getElementById("token").value;
+                } else {
+                    alert(result.msg);
+                }
+            },
+            error: function (msg1, msg2, msg3) {
+                console.log(msg1.responseJSON);
+                console.log(msg2);
+                console.log(msg3);
+                alert(msg1.responseJSON.msg);
+            }
+        })
+    });
+
+
+    $("#upload").click(function () {
+        var formData = new FormData();
+        formData.append("fileName", $("#fileField")[0].files[0]);
+        $.ajax({
+            //几个参数需要注意一下
+            type: "POST",//方法类型
+            url: "/uploadFile",//url
+            dataType: "json",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (result) {
+                console.log(result);
+                $("#successFilePath").val(result.data.fileUrl);
+                alert("成功上传文件！")
+            },
+            error: function (s, s2, s3) {
+                console.log(s);
+                console.log(s2);
+                console.log(s3);
+                alert("上传文件失败！");
+            }
+        })
+    });
+
+
+</script>
+</body>
+</html>
