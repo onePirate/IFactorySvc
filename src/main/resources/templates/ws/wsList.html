@@ -1,119 +1,158 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title></title>
-    <link rel="stylesheet" href="../../layui/css/amazeui.min.css"/>
-    <link rel="stylesheet" href="../../layui/css/admin.css"/>
-    <script type="text/javascript" src="../../layui/js/jquery-1.11.3.min.js"></script>
-    <script type="text/javascript" src="../../layui/js/layui.js"></script>
-    <script type="text/javascript">
-        function search() {
-            window.parent.document.getElementById("body").src = "/wsList?status=" + $("#status").val();
-        }
-    </script>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="lib/layui-v2.5.4/css/layui.css" media="all">
+    <link rel="stylesheet" href="css/public.css" media="all">
 </head>
 <body>
-
-<div class="admin-content-body">
-    <div class="am-cf am-padding am-padding-bottom-0">
-        <div class="am-fl am-cf"><strong class="am-text-primary am-text-lg">工单列表</strong>
-            <small></small>
-        </div>
-    </div>
-    <hr>
-    <div class="am-g">
-        <div class="am-u-sm-12 am-u-md-3">
-            <div class="am-input-group am-input-group-sm">
-                <input id="status" type="text" class="am-form-field" placeholder="请输入状态">
-                <span class="am-input-group-btn">
-                    <button class="am-btn am-btn-default" type="button" onclick="search()">搜索</button>
-                </span>
-            </div>
-        </div>
-    </div>
-    <div class="am-g">
-        <div class="am-u-sm-12">
-            <form class="am-form">
-                <table class="am-table am-table-striped am-table-hover table-main">
-                    <thead>
-                    <tr>
-                        <th class="table-id">工单号</th>
-                        <th class="table-title">工单名称</th>
-                        <th class="table-title">创建时间</th>
-                        <th class="table-title">开始时间</th>
-                        <th class="table-title">截止时间</th>
-                        <th class="table-title">平台</th>
-                        <th class="table-title">设备类型</th>
-                        <th class="table-title">类型码</th>
-                        <th class="table-title">品牌</th>
-                        <th class="table-title">颜色</th>
-                        <th class="table-title">全重</th>
-                        <th class="table-title">净重</th>
-                        <th class="table-title">尺寸</th>
-                        <th class="table-title">厚度</th>
-                        <th class="table-title">工单状态</th>
-                        <th class="table-title">客户名称</th>
-                        <th class="table-title">客户公司</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="ws,wsStat : ${wsList}">
-                        <td th:text="${ws.code}"></td>
-                        <td th:text="${ws.name}"></td>
-                        <td th:text="${ws.createTime}"></td>
-                        <td th:text="${ws.startTime}"></td>
-                        <td th:text="${ws.deadline}"></td>
-                        <td th:text="${ws.platform}"></td>
-                        <td th:text="${ws.deviceType}"></td>
-                        <td th:text="${ws.typeCode}"></td>
-                        <td th:text="${ws.brandName}"></td>
-                        <td th:text="${ws.color}"></td>
-                        <td th:text="${ws.fullWeight}"></td>
-                        <td th:text="${ws.trueWeight}"></td>
-                        <td th:text="${ws.deviceSize}"></td>
-                        <td th:text="${ws.thickness}"></td>
-                        <td th:if="${ws.status} eq 0" style="color: #3bb4f2;">准备中</td>
-                        <td th:if="${ws.status} eq 1" style="color: #a5fda5;">生产中</td>
-                        <td th:if="${ws.status} eq 2" style="color: #f9984bb5;">暂停中</td>
-                        <td th:if="${ws.status} eq 3" style="color: #08f508;">完成</td>
-                        <td th:if="${ws.status} eq 4" style="color: #f90d04;">删除</td>
-                        <td th:text="${ws.cusName}"></td>
-                        <td th:text="${ws.cusCompany}"></td>
-                    </tr>
-                    </tbody>
-                </table>
-                <!--<div class="am-cf">
-                    共 15 条记录
-                    <div class="am-fr">
-                        <ul class="am-pagination">
-                            <li class="am-disabled">
-                                <a href="#">«</a>
-                            </li>
-                            <li class="am-active">
-                                <a href="#">1</a>
-                            </li>
-                            <li>
-                                <a href="#">2</a>
-                            </li>
-                            <li>
-                                <a href="#">3</a>
-                            </li>
-                            <li>
-                                <a href="#">4</a>
-                            </li>
-                            <li>
-                                <a href="#">5</a>
-                            </li>
-                            <li>
-                                <a href="#">»</a>
-                            </li>
-                        </ul>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <fieldset class="layui-elem-field layuimini-search">
+            <legend>搜索信息</legend>
+            <div style="margin: 10px 10px 10px 10px">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">工单号</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="code" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">工单状态</label>
+                            <div class="layui-input-inline">
+                                <select name="status" lay-search="">
+                                    <option value="">请选择</option>
+                                    <option value="0">准备中</option>
+                                    <option value="1">生产中</option>
+                                    <option value="2">暂停中</option>
+                                    <option value="3">已完成</option>
+                                    <option value="4">已删除</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <a class="layui-btn" lay-submit="" lay-filter="data-search-btn">搜索</a>
+                        </div>
                     </div>
-                </div>-->
-            </form>
-        </div>
+                </form>
+            </div>
+        </fieldset>
+
+
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+        <script type="text/html" id="currentTableBar">
+            <a class="layui-btn layui-btn-xs data-count-edit" lay-event="edit">编辑</a>
+            <a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">删除</a>
+        </script>
     </div>
 </div>
+<script src="lib/layui-v2.5.4/layui.js" charset="utf-8"></script>
+<script>
+
+    layui.use(['form', 'table'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table;
+
+        var tableObj = table.render({
+            elem: '#currentTableId',
+            url: 'worksheet/list',
+            method: 'post',
+            contentType: 'application/json;charset=utf-8',
+            where: {
+                "code": "",
+                "status": ""
+            },
+            cols: [
+                [
+                    /*{type: "checkbox",fixed: "left"},*/
+                    {field: 'code', title: '工单号'},
+                    {field: 'name', title: '工单名称'},
+                    {field: 'createTime', title: '创建时间'},
+                    {field: 'startTime', title: '开始时间'},
+                    {field: 'deadline', title: '截止时间'},
+                    {field: 'platform', title: '平台'},
+                    {field: 'deviceType', title: '设备类型'},
+                    {field: 'typeCode', title: '类型码'},
+                    {field: 'brandName', title: '品牌'},
+                    {field: 'color', title: '颜色'},
+                    {field: 'fullWeight', title: '全重'},
+                    {field: 'trueWeight', title: '净重'},
+                    {field: 'deviceSize', title: '尺寸'},
+                    {field: 'thickness', title: '厚度'},
+                    {field: 'status', title: '工单状态', templet : "#statusToolbar"},
+                    {field: 'cusName', title: '客户名称'},
+                    {field: 'cusPhone', title: '客户电话'},
+                    {field: 'cusCompany', title: '客户公司'}
+                    /*{title: '操作', templet: '#currentTableBar', fixed: "right", align: "center"}*/
+                ]
+            ],
+            limits: [10, 15, 20, 25, 50, 100],
+            limit: 15,
+            page: true
+        });
+
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            //执行搜索重载
+            table.reload('currentTableId', {
+                page: {
+                    curr: 1
+                },
+                where: data.field
+            }, 'data');
+            return true;
+        });
+
+        // 监听添加操作
+        $(".data-add-btn").on("click", function () {
+            layer.msg('添加数据');
+        });
+
+        // 监听删除操作
+        $(".data-delete-btn").on("click", function () {
+            var checkStatus = table.checkStatus('currentTableId')
+                , data = checkStatus.data;
+            layer.alert(JSON.stringify(data));
+        });
+
+        //监听表格复选框选择
+        table.on('checkbox(currentTableFilter)', function (obj) {
+            console.log(obj)
+        });
+
+        table.on('tool(currentTableFilter)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'edit') {
+                layer.alert('编辑行：<br>' + JSON.stringify(data))
+            } else if (obj.event === 'delete') {
+                layer.confirm('真的删除行么', function (index) {
+                    obj.del();
+                    layer.close(index);
+                });
+            }
+        });
+
+    });
+</script>
+<script type="text/html" id="statusToolbar">
+    {{#if (d.status == 1) { }}
+    <span style="color: #a5fda5;">生产中</span>
+    {{# }else if(d.status == 0){ }}
+    <span style="color: #3bb4f2;">准备中</span>
+    {{# }else if(d.status == 2){ }}
+    <span style="color: #f9984bb5;">暂停中</span>
+    {{# }else if(d.status == 3){ }}
+    <span style="color: #08f508;">已完成</span>
+    {{# }else if(d.status == 4){ }}
+    <span style="color: #f90d04;">已删除</span>
+    {{# } }}
+</script>
 </body>
 </html>

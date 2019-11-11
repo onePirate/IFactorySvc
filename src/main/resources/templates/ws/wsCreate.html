@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
-    <link rel="stylesheet" href="../../layui/css/layui.css">
-    <script type="text/javascript" src="../../layui/js/jquery-1.11.3.min.js"></script>
-    <script type="text/javascript" src="../../layui/js/layui.js"></script>
+    <link rel="stylesheet" href="lib/layui-v2.5.4/css/layui.css">
+    <script type="text/javascript" src="lib/jquery-3.4.1/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="lib/layui-v2.5.4/layui.js"></script>
     <style>
         div.costs-uploadfile-div {
             position: relative;
@@ -265,8 +265,8 @@
             dataType: "json",
             success: function (result) {
                 console.log(result);
-                if (result.code == 200) {
-                    window.parent.document.getElementById("body").src = "/wsList?token=" + window.parent.document.getElementById("token").value;
+                if (result.code == 0) {
+                    top.location.href = parent.location.href.split("#")[0];
                 } else {
                     alert(result.msg);
                 }

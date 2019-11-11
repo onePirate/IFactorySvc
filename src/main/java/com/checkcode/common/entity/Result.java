@@ -9,5 +9,7 @@ public class Result {
 
     protected String msg;
 
+    protected Integer count;
+
     protected Object data;
 }

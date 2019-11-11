@@ -2,7 +2,7 @@ package com.checkcode.common;
 
 public enum StateEnum {
 
-    OK(200,"成功"),
+    OK(0,"成功"),
     FAIL(500,"请求失败，稍后重试"),
     FAIL_UPLOADDATA(500,"上传数据失败，请稍后重试"),
     FAIL_SAVEDATA(500,"保存数据失败，请重试"),

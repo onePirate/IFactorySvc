@@ -152,7 +152,7 @@ public class WorkSheetController {
                     workSheetVoList = getWsVoDetailList(runningWsList);
                 }
 
-                return ResultTool.successWithMap(workSheetVoList);
+                return ResultTool.successWithList(workSheetVoList, workSheetParam.getPage(), workSheetParam.getLimit());
             }
 
             QueryWrapper<WorkSheetModel> queryWrapper = new QueryWrapper<>();
@@ -166,7 +166,7 @@ public class WorkSheetController {
             if (queryWsList != null && queryWsList.size() > 0) {
                 workSheetVoList = getWsVoDetailList(queryWsList);
             }
-            return ResultTool.successWithMap(workSheetVoList);
+            return ResultTool.successWithList(workSheetVoList, workSheetParam.getPage(), workSheetParam.getLimit());
         }
         return ResultTool.failed(StateEnum.REQ_HAS_ERR);
     }
@@ -218,7 +218,7 @@ public class WorkSheetController {
         ResultTool.valid(bindingResult);
         String wsCode = wsBasePojo.getCode();
         WorkSheetModel workSheetModel = workSheetService.getWsByCode(wsCode);
-        Map<String,String> wsFlowMap = individualFlowService.getWsFlowMap(workSheetModel.getWsFlow());
+        Map<String, String> wsFlowMap = individualFlowService.getWsFlowMap(workSheetModel.getWsFlow());
         //组装每个操作的状态
         Map<String, FlowProgressVo> operProgressMap = new HashMap<>();
 
