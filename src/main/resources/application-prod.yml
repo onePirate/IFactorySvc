@@ -1,6 +1,6 @@
 file:
-  savePath: D:/Program Files/checkcode/file
-  bakPath: D:/.checkcode
+  savePath: D:/Program Files/IFactorySvc/file
+  bakPath: D:/.IFactorySvc
   separator: \\
 
 spring:
@@ -12,7 +12,7 @@ spring:
 
 logging:
   path: classpath:logback-spring.xml
-  paths: D:/Program Files/checkcode/logs
+  paths: D:/Program Files/IFactorySvc/logs
 
 mybatis:
   type-aliases-package: com.checkcode.entity.mpModel
