@@ -28,7 +28,8 @@ public class LogAspect {
      * 需要拦截的class 以及 method
      */
     @Pointcut("execution(public * com.checkcode.controller.*.*(..)) " +
-            "&& !execution(public * com.checkcode.controller.UploadFileController.*(..))")
+            "&& !execution(public * com.checkcode.controller.UploadFileController.*(..)) " +
+            "& !execution(public * com.checkcode.controller.PageController.*(..))")
     public void logPointCut() {
     }
 

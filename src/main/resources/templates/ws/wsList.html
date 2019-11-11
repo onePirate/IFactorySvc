@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="../../layui/css/amazeui.min.css"/>
+    <link rel="stylesheet" href="../../layui/css/admin.css"/>
+    <script type="text/javascript" src="../../layui/js/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="../../layui/js/layui.js"></script>
+    <script type="text/javascript">
+        function search() {
+            window.parent.document.getElementById("body").src = "/wsList?status=" + $("#status").val();
+        }
+    </script>
+</head>
+<body>
+
+<div class="admin-content-body">
+    <div class="am-cf am-padding am-padding-bottom-0">
+        <div class="am-fl am-cf"><strong class="am-text-primary am-text-lg">工单列表</strong>
+            <small></small>
+        </div>
+    </div>
+    <hr>
+    <div class="am-g">
+        <div class="am-u-sm-12 am-u-md-3">
+            <div class="am-input-group am-input-group-sm">
+                <input id="status" type="text" class="am-form-field" placeholder="请输入状态">
+                <span class="am-input-group-btn">
+                    <button class="am-btn am-btn-default" type="button" onclick="search()">搜索</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="am-g">
+        <div class="am-u-sm-12">
+            <form class="am-form">
+                <table class="am-table am-table-striped am-table-hover table-main">
+                    <thead>
+                    <tr>
+                        <th class="table-id">工单号</th>
+                        <th class="table-title">工单名称</th>
+                        <th class="table-title">创建时间</th>
+                        <th class="table-title">开始时间</th>
+                        <th class="table-title">截止时间</th>
+                        <th class="table-title">平台</th>
+                        <th class="table-title">设备类型</th>
+                        <th class="table-title">类型码</th>
+                        <th class="table-title">品牌</th>
+                        <th class="table-title">颜色</th>
+                        <th class="table-title">全重</th>
+                        <th class="table-title">净重</th>
+                        <th class="table-title">尺寸</th>
+                        <th class="table-title">厚度</th>
+                        <th class="table-title">工单状态</th>
+                        <th class="table-title">客户名称</th>
+                        <th class="table-title">客户公司</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="ws,wsStat : ${wsList}">
+                        <td th:text="${ws.code}"></td>
+                        <td th:text="${ws.name}"></td>
+                        <td th:text="${ws.createTime}"></td>
+                        <td th:text="${ws.startTime}"></td>
+                        <td th:text="${ws.deadline}"></td>
+                        <td th:text="${ws.platform}"></td>
+                        <td th:text="${ws.deviceType}"></td>
+                        <td th:text="${ws.typeCode}"></td>
+                        <td th:text="${ws.brandName}"></td>
+                        <td th:text="${ws.color}"></td>
+                        <td th:text="${ws.fullWeight}"></td>
+                        <td th:text="${ws.trueWeight}"></td>
+                        <td th:text="${ws.deviceSize}"></td>
+                        <td th:text="${ws.thickness}"></td>
+                        <td th:if="${ws.status} eq 0" style="color: #3bb4f2;">准备中</td>
+                        <td th:if="${ws.status} eq 1" style="color: #a5fda5;">生产中</td>
+                        <td th:if="${ws.status} eq 2" style="color: #f9984bb5;">暂停中</td>
+                        <td th:if="${ws.status} eq 3" style="color: #08f508;">完成</td>
+                        <td th:if="${ws.status} eq 4" style="color: #f90d04;">删除</td>
+                        <td th:text="${ws.cusName}"></td>
+                        <td th:text="${ws.cusCompany}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <!--<div class="am-cf">
+                    共 15 条记录
+                    <div class="am-fr">
+                        <ul class="am-pagination">
+                            <li class="am-disabled">
+                                <a href="#">«</a>
+                            </li>
+                            <li class="am-active">
+                                <a href="#">1</a>
+                            </li>
+                            <li>
+                                <a href="#">2</a>
+                            </li>
+                            <li>
+                                <a href="#">3</a>
+                            </li>
+                            <li>
+                                <a href="#">4</a>
+                            </li>
+                            <li>
+                                <a href="#">5</a>
+                            </li>
+                            <li>
+                                <a href="#">»</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>-->
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

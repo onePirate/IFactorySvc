@@ -27,6 +27,7 @@ public class WorkSheetModel{
     protected String deviceSize;
     protected String thickness;
     protected String extendInfo;
+    private String wsFlow;
     private String fileUrl;
 
     public static final String CODE ="code";
@@ -46,5 +47,6 @@ public class WorkSheetModel{
     public static final String DEVICE_SIZE ="device_size";
     public static final String THICKNESS ="thickness";
     public static final String EXTEND_INFO ="extend_info";
+    public static final String WSFLOW ="wsFlow";
     public static final String FILE_URL="file_url";
 }

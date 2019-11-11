@@ -8,6 +8,8 @@ import lombok.Data;
 public class IndividualFlowModel {
 
 
+    private String worksheetCode;
+
     private String individualSn;
 
     private String employeeNo;
@@ -41,6 +43,7 @@ public class IndividualFlowModel {
         return hashno;
     }
 
+    public static final String PROPERTIES_WORKSHEET_CODE = "worksheet_code";
     public static final String PROPERTIES_INDIVIDUAL_SN = "individual_sn";
     public static final String PROPERTIES_EMPLOYEE_NO = "employee_no";
     public static final String PROPERTIES_OPER = "oper";

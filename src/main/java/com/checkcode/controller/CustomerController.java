@@ -58,7 +58,7 @@ public class CustomerController {
 
 
     @PostMapping("/queryByAttr")
-    public Result create(@RequestBody SearchPojo searchPojo) {
+    public Result query(@RequestBody SearchPojo searchPojo) {
         QueryWrapper<CustomerModel> queryWrapper = new QueryWrapper<>();
         String searchVal = searchPojo.getSearchVal() == null ? "" : searchPojo.getSearchVal();
         queryWrapper.like(CustomerModel.PROPERTIES_COMPANY, searchVal);

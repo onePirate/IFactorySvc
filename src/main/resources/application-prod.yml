@@ -1,6 +1,6 @@
 file:
-  savePath: D:/Program Files/checkcode/file
-  bakPath: D:/.checkcode
+  savePath: D:/Program Files/IFactorySvc/file
+  bakPath: D:/.IFactorySvc
   separator: \\
 
 spring:
@@ -8,11 +8,11 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/db_code?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
     driverClassName: com.mysql.jdbc.Driver
     username: root
-    password: 123456
+    password: cc@com101
 
 logging:
   path: classpath:logback-spring.xml
-  paths: D:/Program Files/checkcode/logs
+  paths: D:/Program Files/IFactorySvc/logs
 
 mybatis:
   type-aliases-package: com.checkcode.entity.mpModel

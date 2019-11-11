@@ -4,9 +4,12 @@ server:
 spring:
   profiles:
     active: prod
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
 
 #单位：毫秒
 token:
-  switch: true
+  switch: false
   timeout: 86400000
 

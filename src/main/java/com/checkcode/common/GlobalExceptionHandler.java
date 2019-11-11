@@ -3,6 +3,7 @@ package com.checkcode.common;
 import com.checkcode.common.entity.Result;
 import com.checkcode.common.tools.ResultTool;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -38,9 +39,20 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = HttpMediaTypeNotSupportedException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Result httpMediaTypeNotSupportedExceptionExceptionHandler(CustomerException e) {
+    public Result httpMediaTypeNotSupportedExceptionExceptionHandler(HttpMediaTypeNotSupportedException e) {
         log.error("server has error!",e);
         return ResultTool.failedOnly("仅支持application/json类型");
+    }
+    /**
+     * 默认统一异常处理方法
+     * @param e SQLIntegrityConstraintViolationException
+     * @return
+     */
+    @ExceptionHandler(value = DuplicateKeyException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Result sqlIntegrityConstraintViolationExceptionHandler(DuplicateKeyException e) {
+        log.error("server has error!",e);
+        return ResultTool.failedOnly("员工账号重复");
     }
 
     /**

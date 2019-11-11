@@ -3,11 +3,11 @@ package com.checkcode.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.checkcode.common.CustomerException;
 import com.checkcode.common.FlowOrderConstant;
-import com.checkcode.common.FlowOrderEnum;
 import com.checkcode.common.entity.Result;
 import com.checkcode.common.tools.ResultTool;
 import com.checkcode.entity.mpModel.DeviceIndividualModel;
 import com.checkcode.entity.mpModel.IndividualFlowModel;
+import com.checkcode.entity.mpModel.WorkSheetModel;
 import com.checkcode.entity.param.FlowBoxUpRecordParam;
 import com.checkcode.entity.param.FlowRecordParam;
 import com.checkcode.entity.param.FlowRecordVaildGroup;
@@ -18,8 +18,8 @@ import com.checkcode.service.IIndividualFlowService;
 import com.checkcode.service.IWorkSheetService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,14 +31,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
 @RequestMapping("/device/individual/flow")
 public class DeviceIndividualFlowController {
 
-    private static final String MECHINE_PRINT = "MECHINE_PRINT";
     private static final String BOX_UP = "BOX_UP";
 
     @Autowired
@@ -52,18 +50,10 @@ public class DeviceIndividualFlowController {
     @PostMapping("/record")
     public Result recordDeviceFlow(@Validated(FlowRecordVaildGroup.NormalGroup.class) @RequestBody FlowRecordParam flowRecordParam, BindingResult bindingResult) {
         ResultTool.valid(bindingResult);
+        String wsCode = flowRecordParam.getCode();
+        WorkSheetModel workSheetModel = workSheetService.getWsByCode(wsCode);
 
-//        if (MECHINE_PRINT.equals(FlowOrderConstant.flowMap.get(flowRecordParam.getOper()))) {
-//            //如果当前流程是第一个流程直接记录，判断是否以及记录过了
-//            IndividualFlowModel individualFlowModel = individualFlowService.getDeviceLastRecord(flowRecordParam.getIndividualSn());
-//            if (individualFlowModel != null) {
-//                String errMsg = "设备机码打印流程已经记录";
-//                log.warn(flowRecordParam.getIndividualSn() + "->" + errMsg);
-//                return ResultTool.failedOnly(errMsg);
-//            }
-//            return ResultTool.successWithMap(individualFlowService.recordFlowAndGetProcess(flowRecordParam, false));
-//        } else
-        if (BOX_UP.equals(FlowOrderConstant.flowMap.get(flowRecordParam.getOper()))) {
+        if (FlowOrderConstant.SIXTH.equals(flowRecordParam.getOper())) {
             //如果当前流程是最后一个流程，返回错误提示，装箱流程不在这个接口中操作
             String errMsg = "装箱不在这里操作";
             log.warn(flowRecordParam.getIndividualSn() + "->" + errMsg);
@@ -71,17 +61,28 @@ public class DeviceIndividualFlowController {
         }
 
         //其他流程
-        IndividualFlowModel individualFlowModel = individualFlowService.getDeviceLastRecord(flowRecordParam.getIndividualSn());
+        IndividualFlowModel individualFlowModel = individualFlowService.getDeviceLastRecord(flowRecordParam);
         if (individualFlowModel == null) {
             String errMsg = "流程有误，请确保操作流程正确";
             log.warn(flowRecordParam.getIndividualSn() + "->" + errMsg);
             return ResultTool.failedOnly(errMsg);
         }
-        FlowOrderEnum flowOrderEnum = FlowOrderEnum.valueOf(FlowOrderConstant.flowMap.get(individualFlowModel.getOper()));
-        if (flowOrderEnum.getNextFlow().equals(flowRecordParam.getOper())) {
-            return ResultTool.successWithMap(individualFlowService.recordFlowAndGetProcess(flowRecordParam, false));
+        Map<String, String> wsFlowMap = individualFlowService.getWsFlowMap(workSheetModel.getWsFlow());
+        String nextFlow = wsFlowMap.get(individualFlowModel.getOper());
+        if (StringUtils.isEmpty(nextFlow)) {
+            String errMsg = "流程已完成";
+            log.warn(flowRecordParam.getIndividualSn() + "->" + errMsg);
+            return ResultTool.failedOnly(errMsg);
         }
-        String errMsg = "流程有误，请确保操作流程正确";
+        if (nextFlow.equals(flowRecordParam.getOper())) {
+            if (FlowOrderConstant.ZERO.equals(flowRecordParam.getOper()) && "1".equals(flowRecordParam.getStatus())) {
+                return ResultTool.successWithMap(individualFlowService.mechinePrintSuccessUpdateIndividualStatusOne(flowRecordParam));
+            } else {
+                return ResultTool.successWithMap(individualFlowService.recordFlowAndGetProcess(flowRecordParam, false));
+            }
+
+        }
+        String errMsg = "流程有误，请确认工单是否包含当前流程";
         log.warn(flowRecordParam.getIndividualSn() + "->" + errMsg);
         return ResultTool.failedOnly(errMsg);
 
@@ -90,11 +91,7 @@ public class DeviceIndividualFlowController {
 
     @PostMapping("/boxUp")
     public Result recordDeviceBoxUpFlow(@Valid @RequestBody FlowBoxUpRecordParam flowBoxUpRecordParam, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            for (ObjectError error : bindingResult.getAllErrors()) {
-                return ResultTool.failedOnly(error.getDefaultMessage());
-            }
-        }
+        ResultTool.valid(bindingResult);
 
         return ResultTool.successWithMap(individualFlowService.boxUp(flowBoxUpRecordParam));
     }
@@ -103,21 +100,18 @@ public class DeviceIndividualFlowController {
     @PostMapping("/query")
     public Result queryFlow(@Valid @RequestBody SearchPojo searchPojo, BindingResult bindingResult) {
         ResultTool.valid(bindingResult);
-        List<DeviceIndividualModel> deviceIndividualModelList = deviceIndividualService.getIndividualListByCondition(searchPojo.getSearchVal());
+        List<DeviceIndividualModel> deviceIndividualModelList = deviceIndividualService.getIndividualListByCondition(searchPojo);
 
-        List<String> snList = deviceIndividualModelList.stream().map(o -> {
-            if (o.getSN1() != null) {
-                return o.getSN1();
-            }
-            return o.getSN2();
-        }).collect(Collectors.toList());
+        List<String> snList = workSheetService.getWsSnList(deviceIndividualModelList);
 
         Map<String, List<IndividualFlowModel>> flowMap = new HashMap<>();
         /**
          * 获取符合条件设备所有的流程
          */
         if (snList != null && snList.size() > 0) {
+
             QueryWrapper<IndividualFlowModel> flowModelsQueryWrapper = new QueryWrapper<>();
+            flowModelsQueryWrapper.eq(IndividualFlowModel.PROPERTIES_WORKSHEET_CODE, deviceIndividualModelList.get(0).getWorksheetCode());
             flowModelsQueryWrapper.in(IndividualFlowModel.PROPERTIES_INDIVIDUAL_SN, snList);
             flowModelsQueryWrapper.orderByAsc(IndividualFlowModel.PROPERTIES_OPER_TIME);
             List<IndividualFlowModel> flowModelList = individualFlowService.list(flowModelsQueryWrapper);
@@ -155,11 +149,20 @@ public class DeviceIndividualFlowController {
     @PostMapping("/reset")
     public Result resetFlow(@Validated(FlowRecordVaildGroup.ResetGroup.class) @RequestBody FlowRecordParam flowRecordParam, BindingResult bindingResult) {
         ResultTool.valid(bindingResult);
-        IndividualFlowModel individualFlowModel = individualFlowService.getDeviceLastRecord(flowRecordParam.getIndividualSn());
+        WorkSheetModel workSheetModel = workSheetService.getWsByCode(flowRecordParam.getCode());
+        Map<String,String> wsFlowMap = individualFlowService.getWsFlowMap(workSheetModel.getWsFlow());
+        if (wsFlowMap.get(flowRecordParam.getOper()) == null) {
+            throw new CustomerException("工单不包含当前重置流程");
+        }
+        IndividualFlowModel individualFlowModel = individualFlowService.getDeviceLastRecord(flowRecordParam);
         int lastFlowNum = Integer.valueOf(individualFlowModel.getOper().split("_")[0]);
         int inputFlowNum = Integer.valueOf(flowRecordParam.getOper().split("_")[0]);
         if (inputFlowNum > lastFlowNum) {
             throw new CustomerException("请保证重置流程正确");
+        }
+        if (FlowOrderConstant.INITIALIZE.equals(flowRecordParam.getOper())) {
+            FlowProgressVo flowProgressVo = individualFlowService.resetToInitializeNeedUpdateIndividualStatusZero(flowRecordParam);
+            return ResultTool.successWithMap(flowProgressVo);
         }
         FlowProgressVo flowProgressVo = individualFlowService.recordFlowAndGetProcess(flowRecordParam, true);
         return ResultTool.successWithMap(flowProgressVo);
