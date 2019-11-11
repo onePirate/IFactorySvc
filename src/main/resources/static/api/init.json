@@ -1,0 +1,43 @@
+{
+  "clearInfo": {
+    "clearUrl": "api/clear.json"
+  },
+  "homeInfo": {
+    "title": "首页",
+    "icon": "fa fa-home",
+    "href": "wsList"
+  },
+  "logoInfo": {
+    "title": "智能工厂系统",
+    "image": "images/logo.png",
+    "href": ""
+  },
+  "menuInfo": {
+    "currency": {
+      "title": "常规管理",
+      "icon": "fa fa-address-book",
+      "child": [
+        {
+          "title": "工单管理",
+          "href": "",
+          "icon": "fa fa-home",
+          "target": "_self",
+          "child": [
+            {
+              "title": "工单列表",
+              "href": "wsList",
+              "icon": "fa fa-file-text",
+              "target": "_self"
+            },
+            {
+              "title": "工单创建",
+              "href": "wsCreate",
+              "icon": "fa fa-pencil-square-o",
+              "target": "_self"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

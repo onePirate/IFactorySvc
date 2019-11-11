@@ -6,7 +6,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class WorkSheetParam {
+public class WorkSheetParam extends PageParam{
 
     @NotEmpty(message = "工单号不能为空", groups = {WorkSheetGroup.LoginGroup.class})
     private String code;

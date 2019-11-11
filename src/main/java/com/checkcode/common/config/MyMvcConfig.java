@@ -14,14 +14,14 @@ public class MyMvcConfig implements WebMvcConfigurer {
     LoginHandlerInterceptor loginHandlerInterceptor;
 
     @Bean
-    public WebMvcConfigurer webMvcConfigurerAdapter(){
-        return new WebMvcConfigurer(){
+    public WebMvcConfigurer webMvcConfigurerAdapter() {
+        return new WebMvcConfigurer() {
 
             @Override
             public void addInterceptors(InterceptorRegistry registry) {
                 // /**  表示拦截所有路径下的所有请求
                 registry.addInterceptor(loginHandlerInterceptor)
-                            .excludePathPatterns("/style/**","/layui/**","/signup","/login","/error","/logout","/","/**/**/upload","/**/upload")
+                        .excludePathPatterns("/style/**", "/signup", "/login", "/error", "/logout", "/", "/**/**/upload", "/**/upload")
                         .addPathPatterns("/**");
             }
         };
