@@ -116,7 +116,7 @@ public class IndividualFlowServiceImpl extends ServiceImpl<IIndividualFlowDao, I
         for (int i = 0; i < flowListSize; i++) {
             IndividualFlowModel individualFlowModel = individualFlowModelList.get(i);
             //需要校验设备的上个流程是否正确为（称重）
-            if (!wsFlowMap.get(individualFlowModel.getOper()).equals(FlowOrderConstant.SIXTH)) {
+            if (!FlowOrderConstant.SIXTH.equals(wsFlowMap.get(individualFlowModel.getOper()))) {
                 throw new CustomerException("正在装箱的部分设备流程有误");
             }
             resetTimesMap.put(individualFlowModel.getIndividualSn(), individualFlowModel.getResetTimes());

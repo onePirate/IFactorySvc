@@ -26,6 +26,7 @@ public class DeviceIndividualServiceImpl extends ServiceImpl<IDeviceIndividualDa
         queryIndividualListWrapper.and(properties ->
                 properties.eq(DeviceIndividualModel.PROPERTIES_SN1, searchValue)
                         .or().eq(DeviceIndividualModel.PROPERTIES_SN2, searchValue)
+                        .or().eq(DeviceIndividualModel.PROPERTIES_INDIVIDUAL_SN, searchValue)
                         .or().eq(DeviceIndividualModel.PROPERTIES_IMEI1, searchValue)
                         .or().eq(DeviceIndividualModel.PROPERTIES_IMEI2, searchValue)
                         .or().eq(DeviceIndividualModel.PROPERTIES_IMEI3, searchValue)

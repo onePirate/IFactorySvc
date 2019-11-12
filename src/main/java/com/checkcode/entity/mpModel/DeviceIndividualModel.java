@@ -9,6 +9,10 @@ import lombok.Data;
 @TableName("tb_device_individual")
 public class DeviceIndividualModel {
 
+    @JsonProperty(value = "individualSn")
+    @TableField("individual_sn")
+    private String individualSn;
+
     @JsonProperty(value = "SN1")
     @TableField("SN1")
     private String SN1;
@@ -80,6 +84,7 @@ public class DeviceIndividualModel {
     @TableField("status")
     private Integer status;
 
+    public static final String PROPERTIES_INDIVIDUAL_SN = "individual_sn";
     public static final String PROPERTIES_SN1 = "SN1";
     public static final String PROPERTIES_SN2 = "SN2";
     public static final String PROPERTIES_IMEI1 = "IMEI1";

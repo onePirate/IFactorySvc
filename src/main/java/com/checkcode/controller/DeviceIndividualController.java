@@ -121,8 +121,8 @@ public class DeviceIndividualController {
                 DeviceIndividualDetailVo deviceIndividualDetailVo = new DeviceIndividualDetailVo();
                 deviceIndividualDetailVo.setWorksheetCode(sourceModel.getWorksheetCode());
                 deviceIndividualDetailVo.setWeight(sourceModel.getWeight());
-
-                String keySn = StringUtils.isEmpty(sourceModel.getSN1()) ? sourceModel.getSN2() : sourceModel.getSN1();
+                String keySn = sourceModel.getIndividualSn();
+                deviceIndividualDetailVo.setIndividualSn(keySn);
                 deviceIndividualDetailVo.setOper(flowModelMap.get(keySn).getOper());
                 deviceIndividualDetailVo.setStatus(flowModelMap.get(keySn).getStatus());
 

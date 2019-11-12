@@ -67,7 +67,7 @@ public class TokenTool {
      * 生成16位不重复的随机数，含数字+大小写
      * @return
      */
-    private static String getGUID() {
+    public static String getGUID() {
         StringBuilder uid = new StringBuilder();
         //产生16位的强随机数
         Random rd = new SecureRandom();

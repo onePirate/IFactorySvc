@@ -9,6 +9,7 @@ import com.checkcode.common.StateEnum;
 import com.checkcode.common.entity.Result;
 import com.checkcode.common.tools.IdWorker;
 import com.checkcode.common.tools.ResultTool;
+import com.checkcode.common.tools.TokenTool;
 import com.checkcode.entity.mpModel.CustomerModel;
 import com.checkcode.entity.mpModel.DeviceIndividualModel;
 import com.checkcode.entity.mpModel.WorkSheetModel;
@@ -76,6 +77,7 @@ public class WorkSheetController {
         List<DeviceIndividualModel> deviceIndividualList = deviceIndividualPojoList.stream().map(o -> {
             DeviceIndividualModel deviceIndividualModel = new DeviceIndividualModel();
             BeanUtils.copyProperties(o, deviceIndividualModel);
+            deviceIndividualModel.setIndividualSn("SNX" + TokenTool.getGUID().toUpperCase() + "X" + IdWorker.getNoByUUId());
             return deviceIndividualModel;
         }).collect(Collectors.toList());
         //如果解析都正确，则插入数据到tb_device_individual中
@@ -115,9 +117,6 @@ public class WorkSheetController {
                         && StringUtils.isEmpty(deviceIndividualPojo.getEXTRA3())) {
                     continue;
                 }
-                if (StringUtils.isEmpty(deviceIndividualPojo.getSN1()) && StringUtils.isEmpty(deviceIndividualPojo.getSN2())) {
-                    throw new CustomerException(StateEnum.FAIL_EXCEL_DATA_EX);
-                }
                 deviceIndividualPojo.setWorksheetCode(code);
                 deviceIndividualList.add(deviceIndividualPojo);
             }
@@ -138,6 +137,8 @@ public class WorkSheetController {
     @PostMapping("/list")
     public Result listWorkSheet(@RequestBody WorkSheetParam workSheetParam) {
         if (workSheetParam != null) {
+            int page = workSheetParam.getPage() == null ? 1 : workSheetParam.getPage();
+
             List<WorkSheetVo> workSheetVoList = new ArrayList<>();
             //如果两个参数为null，则返回所有可运行的数据
             if (StringUtils.isEmpty(workSheetParam.getCode()) && workSheetParam.getStatus() == null) {
@@ -152,7 +153,8 @@ public class WorkSheetController {
                     workSheetVoList = getWsVoDetailList(runningWsList);
                 }
 
-                return ResultTool.successWithList(workSheetVoList, workSheetParam.getPage(), workSheetParam.getLimit());
+                int limit = workSheetParam.getLimit() == null ? workSheetVoList.size() : workSheetParam.getLimit();
+                return ResultTool.successWithList(workSheetVoList, page, limit);
             }
 
             QueryWrapper<WorkSheetModel> queryWrapper = new QueryWrapper<>();
@@ -166,7 +168,8 @@ public class WorkSheetController {
             if (queryWsList != null && queryWsList.size() > 0) {
                 workSheetVoList = getWsVoDetailList(queryWsList);
             }
-            return ResultTool.successWithList(workSheetVoList, workSheetParam.getPage(), workSheetParam.getLimit());
+            int limit = workSheetParam.getLimit() == null ? workSheetVoList.size() : workSheetParam.getLimit();
+            return ResultTool.successWithList(workSheetVoList, page, limit);
         }
         return ResultTool.failed(StateEnum.REQ_HAS_ERR);
     }

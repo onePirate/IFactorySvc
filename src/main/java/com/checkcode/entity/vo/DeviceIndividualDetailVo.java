@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class DeviceIndividualDetailVo {
 
+    private String individualSn;
     private String weight;
     private String worksheetCode;
     private String oper;

@@ -63,10 +63,7 @@ public class WorkSheetServiceImpl extends ServiceImpl<IWorkSheetDao, WorkSheetMo
             DeviceIndividualModel individualModel = deviceIndividualList.get(i);
             IndividualFlowModel individualFlowModel = new IndividualFlowModel();
             individualFlowModel.setWorksheetCode(workSheetModel.getCode());
-            individualFlowModel.setIndividualSn(individualModel.getSN1());
-            if (StringUtils.isEmpty(individualFlowModel.getIndividualSn())){
-                individualFlowModel.setIndividualSn(individualModel.getSN2());
-            }
+            individualFlowModel.setIndividualSn(individualModel.getIndividualSn());
             individualFlowModel.setEmployeeNo(workSheetCreateParam.getEmployeeNo());
             individualFlowModel.setOper(FlowOrderConstant.INITIALIZE);
             individualFlowModel.setStatus("1");
@@ -124,12 +121,7 @@ public class WorkSheetServiceImpl extends ServiceImpl<IWorkSheetDao, WorkSheetMo
 
     @Override
     public List<String> getWsSnList(List<DeviceIndividualModel> deviceIndividualModelList){
-        List<String> snList = deviceIndividualModelList.stream().map(o -> {
-            if (o.getSN1() != null) {
-                return o.getSN1();
-            }
-            return o.getSN2();
-        }).collect(Collectors.toList());
+        List<String> snList = deviceIndividualModelList.stream().map(o -> o.getIndividualSn()).collect(Collectors.toList());
         return snList;
     }
 
